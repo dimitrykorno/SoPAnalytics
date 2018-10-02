@@ -1,3 +1,3 @@
 from Menu.Menu import menu
-print("залил таки проект на гит")
+print("гит, второй тест")
 menu()
