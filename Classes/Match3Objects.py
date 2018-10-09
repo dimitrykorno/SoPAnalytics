@@ -1,4 +1,6 @@
 from report_api.Report import Report
+
+
 class Target:
     __slots__ = {'target_count', 'target', 'overflow_target_cunt'}
 

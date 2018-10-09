@@ -1,6 +1,7 @@
 from Classes.Match3Objects import Bonuses
 from Classes.Events import *
 
+
 class User:
     def __init__(self, id_2, id_1=None):
         if id_1:
@@ -25,8 +26,6 @@ class User:
         self.installed_app_version = None
         self.skipped = False
 
-
-
     def is_skipped(self):
         return self.skipped
 
@@ -39,7 +38,6 @@ class User:
         обновление статуса игрока
         для корректной работы необходимо включить в запрос события, включающие данные о валюте, покупках, жизнях и тд
         '''
-
 
         # при старте матч3 вычитаем выбранные и прибавляем купленные бонусы, обновляем жизни
         if current_event.__class__ is Match3StartGame:
@@ -113,7 +111,7 @@ class User:
             if current_event.game_coin is not None:
                 self.game_coin = current_event.game_coin
 
-        elif isinstance(current_event,CityEventsRestore):
+        elif isinstance(current_event, CityEventsRestore):
             if current_event.game_coin is not None:
                 self.game_coin = current_event.game_coin
 

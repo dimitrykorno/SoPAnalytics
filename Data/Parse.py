@@ -1,4 +1,3 @@
-# import json
 try:
     import ujson as json
 except ImportError:
@@ -14,6 +13,7 @@ from Utilities.Super import *
 from Utilities.Tutorials import tutorials
 from report_api.Report import Report
 
+
 def parse_event(event_name, event_json, datetime):
     # заменяем двойные двойные кавычки на одинакрные двойные кавычки (да, тупо...)
     event_json = re.sub(r'""', r'"', event_json)
@@ -21,7 +21,7 @@ def parse_event(event_name, event_json, datetime):
     try:
         parameters = json.loads(event_json)
     except ValueError as er:
-        Report.not_found.add("Json opening error: event:"+ event_name+" json: "+ event_json)
+        Report.not_found.add("Json opening error: event:" + event_name + " json: " + event_json)
         return None
     except Exception as er:
         print(er.args)
@@ -39,13 +39,13 @@ def parse_event(event_name, event_json, datetime):
         elif event_name == "Tutorial":
             new_event = parse_tutorial_complete(parameters, datetime)
         else:
-            #raise ValueError("Event parse: Unknown event name:", event_name, datetime)
+            # raise ValueError("Event parse: Unknown event name:", event_name, datetime)
             pass
 
     except Exception as error:
-        Report.not_found.add("Error: "+event_name+" Json: "+ event_json)
-        #print("Error: "+event_name+" Json: "+ event_json)
-        #print(error.args)
+        Report.not_found.add("Error: " + event_name + " Json: " + event_json)
+        # print("Error: "+event_name+" Json: "+ event_json)
+        # print(error.args)
         return
 
     return new_event
@@ -150,10 +150,10 @@ def parse_match3_event(parameters, datetime):
 
     except ValueError as error:
 
-        Report.not_found.add("parse m3 event "+event_type+" "+level_num)
-        #print("parse m3 event",event_type,level_num)
-        #print(parameters)
-        #print(error.args)
+        Report.not_found.add("parse m3 event " + event_type + " " + level_num)
+        # print("parse m3 event",event_type,level_num)
+        # print(parameters)
+        # print(error.args)
 
 
 def get_targets_list(params):
@@ -194,7 +194,7 @@ def get_elements(params):
             targets[target] = value
             continue
 
-        Report.not_found.add("Elements parse: Unknown object: "+ key)
+        Report.not_found.add("Elements parse: Unknown object: " + key)
         others[key] = value
 
     return Elements(super_count=supers, targets_count=targets, colors_count=colors, others_count=others)
@@ -376,10 +376,10 @@ def parse_city_event(parameters, datetime):
             # косяки
             if quest_id in ("Take", "Сomplete"):
                 return
-            if parameters[event_type][quest_id]=="Сomplete":
-                action="Complete"
+            if parameters[event_type][quest_id] == "Сomplete":
+                action = "Complete"
             else:
-                action=parameters[event_type][quest_id]
+                action = parameters[event_type][quest_id]
             return CityEventsQuest(
                 quest_id=quest_id,
                 action=action,
@@ -420,10 +420,10 @@ def parse_city_event(parameters, datetime):
             raise ValueError("Event parse: Unknown City event type:", event_type)
 
     except ValueError as error:
-        Report.not_found.add("parse city event "+event_type)
-        #print("parse city event",event_type)
-        #print(parameters)
-        #print(error.args)
+        Report.not_found.add("parse city event " + event_type)
+        # print("parse city event",event_type)
+        # print(parameters)
+        # print(error.args)
 
 
 def parse_tutorial_steps(parameters, datetime):
@@ -438,7 +438,7 @@ def parse_tutorial_steps(parameters, datetime):
 def parse_tutorial_complete(parameters, datetime):
     tutorial_code = list(parameters.keys())[0]
     if tutorial_code not in tutorials.keys():
-        Report.not_found.add("Event parse: Unknown tutorial: "+ tutorial_code)
+        Report.not_found.add("Event parse: Unknown tutorial: " + tutorial_code)
     return Tutorial(
         tutorial_code=tutorial_code,
         status=parameters[tutorial_code],

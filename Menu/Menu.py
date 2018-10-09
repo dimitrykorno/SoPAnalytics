@@ -1,21 +1,22 @@
 from Reports import M3LevelsFunnel, M3DetailedLevel, GlobalFunnel, UsersSessions, M3LevelBonuses, LastEventHistogram, \
-    DetailedFunnel, LifetimeHistogram, ProgressHistogram, DustDynamics, AccumulativeROI, RetentionPatternHypothesis
-import itertools
+    DetailedFunnel, LifetimeHistogram, ProgressHistogram, DustDynamics, AccumulativeROI, RetentionPatternHypothesis, \
+    M3LevelsMonetization
 import inspect
 
 reports = {
     "1. Отчёт по качеству уровней": M3LevelsFunnel.new_report,
     "2. Подробный отчёт по уровню": M3DetailedLevel.new_report,
     "3. Глобальные отвалы": GlobalFunnel.new_report,
-    "4. Детальные отвалы": DetailedFunnel.new_report,
-    "5. Использование бонусов": M3LevelBonuses.new_report,
+    "4. Порядок уровней в квесте перед отвалом": DetailedFunnel.new_report,
+    "5. Использование бонусов по уровням": M3LevelBonuses.new_report,
     "6. Печать сессий": UsersSessions.new_report,
     "7. Гистограма последних событий": LastEventHistogram.new_report,
     "8. Гистограма лайфтайма": LifetimeHistogram.new_report,
     "9. Гистограма прогресса": ProgressHistogram.new_report,
     "10.Динамика пыли": DustDynamics.new_report,
-    "11.Накопительный ROI": AccumulativeROI.new_report,
-    "12.Гипотезы по ретеншену": RetentionPatternHypothesis.new_report
+    "11.Отчёт по трафику. Накопительный ROI": AccumulativeROI.new_report,
+    "12.Гипотезы по ретеншену": RetentionPatternHypothesis.new_report,
+    "13.Монетизация уровней": M3LevelsMonetization.new_report
 }
 
 
