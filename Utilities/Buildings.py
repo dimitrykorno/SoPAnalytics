@@ -8,6 +8,4 @@ class Buildings(Enum):
     goddess = 3,
     hill = 4,
     laboratory = 5,
-
-
     # и много много других..

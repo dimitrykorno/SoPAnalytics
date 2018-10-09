@@ -1,5 +1,6 @@
 from enum import Enum
 from report_api.Report import Report
+
 targets_set = (
     "Ballon", "Box_Level1", "Carpet_Level1", "Box_Level2", "Box_Level3", "Carpet_Level2", "Stone", "Unicorn", "Weight",
     "LightStar", "Chain_Level1", "Granite_Level1", "Granite_Level2", "Ice_Level1", "Ice_Level2")
@@ -70,5 +71,5 @@ class Targets(Enum):
         elif target == "CrystalBall":
             return Targets.CrystalBall
         else:
-            #Report.not_found.add("Unknown target "+ target)
+            # Report.not_found.add("Unknown target "+ target)
             return

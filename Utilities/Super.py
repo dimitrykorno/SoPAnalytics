@@ -1,6 +1,10 @@
 from enum import Enum
 from report_api.Report import Report
-supers_set=("Super_SmallLightning_h","Super_SmallLightning_v","Super_FireSpark","Super_FireRing","Super_BigLightning_h","Super_BigLightning_v","Super_SphereOfFire","Super_TwoStarBonus","StarBonus")
+
+supers_set = (
+    "Super_SmallLightning_h", "Super_SmallLightning_v", "Super_FireSpark", "Super_FireRing", "Super_BigLightning_h",
+    "Super_BigLightning_v", "Super_SphereOfFire", "Super_TwoStarBonus", "StarBonus")
+
 
 class Supers(Enum):
     SmallLightning_h = 0,
@@ -35,5 +39,5 @@ class Supers(Enum):
         elif super_token == "StarBonus":
             return Supers.StarBonus
         else:
-            #Report.not_found.add("Unknown super token "+ super_token)
+            # Report.not_found.add("Unknown super token "+ super_token)
             return
