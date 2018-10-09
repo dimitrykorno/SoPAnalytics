@@ -1,21 +1,27 @@
-from Classes.Report import Report
-from Utilities.Utils import time_count
+from report_api.Utilities.Utils import time_count, log_approximation
 import pandas as pd
 from datetime import datetime, timedelta
-from Classes.OS import OS
 from Classes.Events import *
-from Utilities.Utils import draw_plot, log_approximation
 import matplotlib.pyplot as plt
 import numpy as np
 from operator import truediv
 from dateutil.rrule import rrule, DAILY
+from Data import Parse
+from Classes.User import User
+from report_api.Report import Report
+from report_api.OS import OS
+
+app = "sop"
 
 
+# noinspection PyDefaultArgument
 @time_count
-def new_report(os_list=["iOS"], period_start=datetime.strptime("2018-09-10", "%Y-%m-%d").date(),
+def new_report(os_list=["iOS"],
+               period_start=datetime.strptime("2018-09-10", "%Y-%m-%d").date(),
                period_end=str(datetime.now().date()),
-               days_since_install=28,
-               min_install_version=None, max_install_version=None, exact=False):
+               min_version=None,
+               max_version=None,
+               days_since_install=28):
     """
     Расчет накопительного ARPU и ROI по паблишерам и трекинговым ссылкам(источникам)
     :param min_install_version:
@@ -31,9 +37,6 @@ def new_report(os_list=["iOS"], period_start=datetime.strptime("2018-09-10", "%Y
         period_start = datetime.strptime(period_start, "%Y-%m-%d").date()
     if isinstance(period_end, str):
         period_end = datetime.strptime(period_end, "%Y-%m-%d").date()
-        # if datetime.now().date() - timedelta(days=days_since_install) < period_end:
-        #    period_end = datetime.now().date() - timedelta(days=days_since_install)
-        #    print("Конец периода изменен на", period_end)
 
     # Списки CPI известных трекинговых ссылок
     cpi = {
@@ -71,38 +74,28 @@ def new_report(os_list=["iOS"], period_start=datetime.strptime("2018-09-10", "%Y
         else:
             not_sound_cpi.add(s)
             return 1
+
     for os_str in os_list:
         os = OS.get_os(os_str)
         # БАЗА ДАННЫХ
-        sql = """
-            SELECT ios_ifa, ios_ifv, event_name, event_json, event_datetime, app_version_name
-            FROM sop_events.events_ios
-            where
-            (
-                (
-                event_name="Match3Events" and event_json like "%BuyPremiumCoin%Success%"
-                or
-                event_name= "CityEvent" and (
-                                                 event_json like "%BuyPremiumCoin%Success%"
-                                                 or
-                                                 event_json like "%InitGameState%"
-                                            )
-                )
-                and
-                (ios_ifv<>"" or ios_ifa <>"")
-               
-            )
-            order by ios_ifa, ios_ifv,  event_datetime
-            """
 
-        # Формируем отчет, учитывая установки в данный период/данной версии с нужными параметрами для кластеризации
-        report = Report(os=OS.ios, sql_events=sql, min_app_version=min_install_version, exact=exact,
-                        get_installs=True,
-                        installs_parameters=["publisher_name", "tracker_name", "install_datetime", "app_version_name"],
-                        installs_period=[period_start, period_end],
-                        min_install_version=min_install_version, max_install_version=max_install_version
-                        )
+        Report.set_app_data(parser=Parse, event_class=Event, user_class=User, os=os_str, app=app,
+                            user_status_check=False)
+        Report.set_installs_data(additional_parameters=None,
+                                 period_start=period_start,
+                                 period_end=period_end,
+                                 min_version=min_version,
+                                 max_version=max_version,
+                                 countries_list=[])
 
+        Report.set_events_data(additional_parameters=None,
+                               period_start=period_start,
+                               period_end=str(datetime.now().date()),
+                               min_version=min_version,
+                               max_version=None,
+                               countries_list=[],
+                               events_list=[("Match3events", "%BuyPremiumCoin%Success%"),
+                                            ("CityEvent", ["%BuyPremiumCoin%Success%", "%InitGameState%"])])
         # параметры
         parameters = ["Installs", "Paying"]
         accumulating_parameters = [str(i) + "d" for i in range(0, days_since_install + 1)]
@@ -141,12 +134,12 @@ def new_report(os_list=["iOS"], period_start=datetime.strptime("2018-09-10", "%Y
                 dau[publisher][source] = {}
                 for dt in rrule(DAILY, dtstart=period_start, until=(period_end + timedelta(days=days_since_install))):
                     dau[publisher][source][dt.date()] = {"Users": 0, "Revenue": 0}
-            if report.previous_user.install_date not in sources[publisher][source].keys():
-                sources[publisher][source][report.previous_user.install_date] = dict.fromkeys(parameters, 0)
+            if Report.previous_user.install_date not in sources[publisher][source].keys():
+                sources[publisher][source][Report.previous_user.install_date] = dict.fromkeys(parameters, 0)
             for param in accumulating_parameters:
-                sources[publisher][source][report.previous_user.install_date][param] += user_accumulative[param]
+                sources[publisher][source][Report.previous_user.install_date][param] += user_accumulative[param]
             if len(user_transactions) > 0:
-                sources[publisher][source][report.previous_user.install_date]["Paying"] += 1
+                sources[publisher][source][Report.previous_user.install_date]["Paying"] += 1
                 transactions[publisher][source].append(user_transactions)
             for d in user_dau.keys():
                 if user_dau[d] is not None:
@@ -156,10 +149,10 @@ def new_report(os_list=["iOS"], period_start=datetime.strptime("2018-09-10", "%Y
                     #    print(dau[publisher][source])
 
         # Цикл обработки данных
-        while report.get_next_event():
+        while Report.get_next_event():
 
             # Переносим пользовательские данные в общие и обнуляем пользователськие парамтеры
-            if report.is_new_user():
+            if Report.is_new_user():
                 flush_user_data()
                 user_accumulative = dict.fromkeys(accumulating_parameters, 0)
                 user_transactions = []
@@ -171,27 +164,29 @@ def new_report(os_list=["iOS"], period_start=datetime.strptime("2018-09-10", "%Y
                 publisher = None
 
             # Определение паблишера и источника
-            publisher = report.current_user.publisher
-            source = report.current_user.source
+            if not publisher:
+                publisher = Report.current_user.publisher
+            if not source:
+                source = Report.current_user.source
 
             # Определяем день после установки
-            day_in_game = report.get_time_since_install(measure="day")
+            day_in_game = Report.get_time_since_install(measure="day")
 
             # Если день изменился, то заполняем дни от предыдущего до нынешнего предыдущим LTV
             if day_in_game > previous_day_in_game:
                 for day in range(previous_day_in_game, day_in_game):
                     user_accumulative[str(day) + "d"] = ltv
-            if report.current_event.datetime.date() in user_dau.keys() and user_dau[
-                report.current_event.datetime.date()] is None:
-                user_dau[report.current_event.datetime.date()] = 0
+            if Report.current_event.datetime.date() in user_dau.keys() and user_dau[
+                Report.current_event.datetime.date()] is None:
+                user_dau[Report.current_event.datetime.date()] = 0
 
             # Обновляем LTV новой покупкой и Revenue в DAU
-            if report.current_event.__class__ in (CityEventsBuyPremiumCoin, Match3BuyPremiumCoin):
-                ltv += report.current_event.price
-                if report.current_event.datetime.date() in user_dau.keys():
-                    user_dau[report.current_event.datetime.date()] += report.current_event.price
+            if Report.current_event.__class__ in (CityEventsBuyPremiumCoin, Match3BuyPremiumCoin):
+                ltv += Report.current_event.price
+                if Report.current_event.datetime.date() in user_dau.keys():
+                    user_dau[Report.current_event.datetime.date()] += Report.current_event.price
                 # Сохраняем транзации для расчета метрик
-                user_transactions.append(report.current_event.price)
+                user_transactions.append(Report.current_event.price)
                 # Переходим на следующий день
             previous_day_in_game = day_in_game
 
@@ -222,14 +217,14 @@ def new_report(os_list=["iOS"], period_start=datetime.strptime("2018-09-10", "%Y
                                            "Day"] + accumulating_parameters)
 
                 # Заполняем пропущенные дни, в которых не было покупок
-                for install in report.installs:
+                for install in Report.get_installs():
                     if (install["publisher_name"] == publisher or
                             (install["publisher_name"] == "" and publisher == "Organic")) and \
                             (install["tracker_name"] == source or (
                                             install["tracker_name"] == "unknown" and source == OS.get_source(os))) and \
                                     install["install_datetime"].date() not in sources[publisher][source].keys() and \
-                                    install[OS.get_aid(report.os)] not in report.user_ifa_skip_list and \
-                                    install[OS.get_id(report.os)] not in report.user_ifv_skip_list:
+                                    install[OS.get_aid(Report.os)] not in Report.user_ifa_skip_list and \
+                                    install[OS.get_id(Report.os)] not in Report.user_ifv_skip_list:
                         # print(install["install_datetime"].date())
                         # print()
                         sources[publisher][source][install["install_datetime"].date()] = dict.fromkeys(parameters, 0)
@@ -237,30 +232,30 @@ def new_report(os_list=["iOS"], period_start=datetime.strptime("2018-09-10", "%Y
                 # Цикл по каждому дню
                 for install_date in sources[publisher][source].keys():
                     installs_number = 0
-                    app_version = None
+                    app_version = "0"
                     # Считаем количество установок в этот день и версию устанавливаемого приложения
-                    for install in report.installs:
+                    for install in Report.get_installs():
                         if (install["publisher_name"] == publisher or
                                 (install["publisher_name"] == "" and publisher == "Organic")) and \
-                                (install["tracker_name"] == source or (
-                                                install["tracker_name"] == "unknown" and source == OS.get_source(
-                                            os))) and \
+                                (install["tracker_name"] == source or
+                                     (install["tracker_name"] == "unknown" and source == OS.get_source(os))) and \
                                         install["install_datetime"].date() == install_date and \
-                                        install[OS.get_aid(report.os)] not in report.user_ifa_skip_list and \
-                                        install[OS.get_id(report.os)] not in report.user_ifv_skip_list:
+                                not {install[OS.get_aid(Report.os)],
+                                     install[OS.get_id(Report.os)]} & Report.user_skip_list:
                             installs_number += 1
-                            app_version = install["app_version_name"]
+                            app_version = max(install["app_version_name"], app_version)
                     sources[publisher][source][install_date]["Installs"] = installs_number
-                    print(publisher, source, install_date, sources[publisher][source][install_date])
+                    # print(publisher, source, install_date, sources[publisher][source][install_date])
                     for i in range(0, days_since_install + 1):
                         overall_source_arpu[str(i) + "d"] += sources[publisher][source][install_date][str(i) + "d"]
                         overall_source_arppu[str(i) + "d"] += sources[publisher][source][install_date][str(i) + "d"]
                         overall_source_arpdau[str(i) + "d"] += sources[publisher][source][install_date][str(i) + "d"]
-                        if sources[publisher][source][install_date]["Installs"]>0:
+                        if sources[publisher][source][install_date]["Installs"] > 0:
                             sources[publisher][source][install_date][str(i) + "d"] = round(
                                 sources[publisher][source][install_date][str(i) + "d"] /
                                 sources[publisher][source][install_date]["Installs"], 2)
-                        else: sources[publisher][source][install_date][str(i) + "d"] =0
+                        else:
+                            sources[publisher][source][install_date][str(i) + "d"] = 0
                     # print(publisher, source,sources[publisher][source][install_date]["Installs"])
 
                     # Добавляем в таблицу строку с ARPU и данными об установках за этот день
@@ -312,11 +307,11 @@ def new_report(os_list=["iOS"], period_start=datetime.strptime("2018-09-10", "%Y
                 overall_source_arpu["Paying"] = str(overall_source_arpu["Paying"]) + " (" + str(paying_percent) + "%)"
                 # overall arpu
                 for i in range(0, days_since_install + 1):
-                    if overall_source_arpu["Installs"]>0:
+                    if overall_source_arpu["Installs"] > 0:
                         overall_source_arpu[str(i) + "d"] = round(
-                        overall_source_arpu[str(i) + "d"] / overall_source_arpu["Installs"], 2)
+                            overall_source_arpu[str(i) + "d"] / overall_source_arpu["Installs"], 2)
                     else:
-                        overall_source_arpu[str(i) + "d"]=0
+                        overall_source_arpu[str(i) + "d"] = 0
                 # Добавляем строку с общим ARPU по источнику
                 df = df.append({
                     "Install date": "OVERALL",
@@ -362,14 +357,14 @@ def new_report(os_list=["iOS"], period_start=datetime.strptime("2018-09-10", "%Y
                     }, ignore_index=True)
 
                     # Рисуем графики
-                    draw_plot(range(0, days_since_install + 1),
-                              {OS.get_os_string(os) + " " + publisher + "/" + source + " ARPU": source_arpu_Y},
-                              show=False,
-                              folder="Traffic Report")
-                    draw_plot(range(0, days_since_install + 1),
-                              {OS.get_os_string(os) + " " + publisher + "/" + source + " ROI": source_roi_Y,
-                               " ": [100] * (days_since_install + 1)}, show=False,
-                              folder="Traffic Report")
+                    Report.draw_plot(range(0, days_since_install + 1),
+                                     {OS.get_os_string(os) + " " + publisher + "_" + source + " ARPU": source_arpu_Y},
+                                     show=False,
+                                     folder="Traffic Report")
+                    Report.draw_plot(range(0, days_since_install + 1),
+                                     {OS.get_os_string(os) + " " + publisher + "_" + source + " ROI": source_roi_Y,
+                                      " ": [100] * (days_since_install + 1)}, show=False,
+                                     folder="Traffic Report")
 
                 # Расчет доп метрик
                 # ARPPU
@@ -408,12 +403,12 @@ def new_report(os_list=["iOS"], period_start=datetime.strptime("2018-09-10", "%Y
 
                 # ARPDAU
                 arpdau = []
-                avg_dau=[]
+                avg_dau = []
                 for d in dau[publisher][source].keys():
                     if dau[publisher][source][d]["Users"] > 0:
                         arpdau.append(dau[publisher][source][d]["Revenue"] / dau[publisher][source][d]["Users"])
                         avg_dau.append(dau[publisher][source][d]["Users"])
-                avg_dau=round(sum(avg_dau)/len(avg_dau),0)
+                avg_dau = round(sum(avg_dau) / len(avg_dau), 0)
                 arpdau = round(sum(arpdau) / len(arpdau), 2) if len(arpdau) > 0 else 0
                 df = df.append({
                     "Install date": "DAU",
@@ -450,5 +445,4 @@ def new_report(os_list=["iOS"], period_start=datetime.strptime("2018-09-10", "%Y
             plt.savefig("Traffic Report/" + title + ".png", bbox_inches='tight')
             # plt.show()
             plt.close()
-        del report
         print("Not found CPI sources", not_sound_cpi)

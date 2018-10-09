@@ -1,75 +1,78 @@
-from Data import Data, Parse
-from Utilities.Utils import *
+from report_api.Utilities.Utils import time_count
+from Utilities.Quests import get_level_names
 from Utilities.Shop import *
 import pandas as pd
+from Classes.Events import *
+from Data import Parse
+from Classes.User import User
+from report_api.Report import Report
+from datetime import datetime
+
+app = "sop"
 
 
-def levels_monetization(start, quantity):
-    sql = """
-    SELECT ios_ifv, event_name, event_json, country_iso_code, event_datetime
-    FROM sop_events.events_ios
-    WHERE event_name = "Match3Events" and event_json like "%BuyPremiumCoinM3%Success%"
-    order by ios_ifv, event_datetime
-    """
-    events, db = Data.get_data(sql=sql)
+@time_count
+def new_report(start=1,
+               quantity=200,
+               os_list=["iOS"],
+               period_start=None,
+               period_end=None,
+               min_version=None,
+               max_version=None):
+    # Приводим границы периода к виду datetime.date
+    if isinstance(period_start, str):
+        period_start = datetime.datetime.strptime(period_start, "%Y-%m-%d").date()
+    if isinstance(period_end, str):
+        period_end = datetime.datetime.strptime(period_end, "%Y-%m-%d").date()
 
-    levels = get_level_names(start, quantity)
-    countries = {}
+    for os_str in os_list:
+        Report.set_app_data(parser=Parse, event_class=Event, user_class=User, os=os_str, app=app,
+                            user_status_check=False)
+        Report.set_installs_data(additional_parameters=None,
+                                 period_start=period_start,
+                                 period_end=period_end,
+                                 min_version=min_version,
+                                 max_version=max_version,
+                                 countries_list=[])
 
-    event_data = events.fetch_row(maxrows=1, how=1)[0]
-    while event_data:
-        buy_event = Parse.parse_event(
-            event_name=event_data["event_name"],
-            event_json=event_data["event_json"]
-        )
+        Report.set_events_data(additional_parameters=None,
+                               period_start=period_start,
+                               period_end=str(datetime.now().date()),
+                               min_version=min_version,
+                               max_version=max_version,
+                               countries_list=[],
+                               events_list=[("Match3Events", "%BuyPremiumCoinM3%Success%")])
 
-        country = event_data["country_iso_code"]
-        if country not in countries.keys():
-            countries[country] = create_df(levels)
-        df = countries[country]
+        levels = get_level_names(start, quantity)
 
-        if buy_event:
-            quant = buy_event.purchase[:-4] + " quant"
-            money = buy_event.purchase[:-4] + " money"
-            price = get_price(buy_event.purchase, "rub")
+        countries = {}
+        while Report.get_next_event():
 
-            if start <= int(buy_event.level_num) <= (start + quantity - 1):
-                print(event_data["ios_ifv"], event_data["event_datetime"], buy_event.level_num, country,
-                      buy_event.purchase)
-                df.loc[buy_event.level_num]["Sum"] += price
-                df.loc[buy_event.level_num][quant] += 1
-                df.loc[buy_event.level_num][money] += price
-            else:
-                print("Есть монетизированные уровни дальше",start+quantity-1)
+            country = Report.current_user.country
+            if country not in countries.keys():
+                countries[country] = pd.DataFrame(index=levels,
+                                                  columns=["Sum", "100 quant", "100 money",
+                                                           "550 quant", "550 money",
+                                                           "1200 quant", "1200 money",
+                                                           "2500 quant", "2500 money",
+                                                           "5300 quant", "5300 money",
+                                                           "11000 quant", "11000 money"])
+                countries[country] = countries[country].fillna(0)
 
-        event_data = events.fetch_row(maxrows=1, how=1)
-        if event_data:
-            event_data = event_data[0]
-        else:
-            db.close()
+            if isinstance(Report.current_event, Match3BuyPremiumCoin):
+                quant = Report.current_event.purchase[:-4] + " quant"
+                money = Report.current_event.purchase[:-4] + " money"
+                price = get_price(Report.current_event.purchase, "rub")
 
-   # print(countries["RU"].to_string())
+                if start <= int(Report.current_event.level_num) <= (start + quantity - 1):
+                    countries[country].at[Report.current_event.level_num, "Sum"] += price
+                    countries[country].at[Report.current_event.level_num, quant] += 1
+                    countries[country].at[Report.current_event.level_num, money] += price
+                else:
+                    print("Есть монетизированные уровни дальше: ", Report.current_event.level_num)
 
-    writer = pd.ExcelWriter("Sales " + str(start) + "-" + str(start + quantity - 1) + ".xlsx")
-    for country in countries:
-        countries[country].to_excel(excel_writer=writer,
-                    sheet_name=country,
-                    header=["Sum", "100 quant", "Money",
-                             "550 quant", "Money",
-                             "1200 quant", "Money",
-                             "2500 quant", "Money",
-                             "5300 quant", "Money",
-                             "11000 quant", "Money"])
-    writer.save()
-
-
-def create_df(levels):
-    df = pd.DataFrame(index=levels,
-                      columns=["Sum", "100 quant", "100 money",
-                               "550 quant", "550 money",
-                               "1200 quant", "1200 money",
-                               "2500 quant", "2500 money",
-                               "5300 quant", "5300 money",
-                               "11000 quant", "11000 money"])
-    df = df.fillna(0)
-    return df
+        writer = pd.ExcelWriter(
+            "Levels Money/Sales " + os_str + " " + str(start) + "-" + str(start + quantity - 1) + ".xlsx")
+        for country in countries:
+            countries[country].to_excel(writer, sheet_name=country)
+        writer.save()
