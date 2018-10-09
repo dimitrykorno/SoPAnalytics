@@ -1,5 +1,5 @@
 from enum import Enum
-
+from report_api.Report import Report
 colors_set = ("Color6_Blue", "Color6_Red", "Color6_Yellow", "Color6_Green", "Color6_Black", "Color6_White")
 
 
@@ -26,5 +26,5 @@ class Colors(Enum):
         elif color == "Color6_White":
             return Colors.White
         else:
-            #print("Unknown color", color)
+            #Report.not_found.add("Unknown color: "+ color)
             return

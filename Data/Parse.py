@@ -12,7 +12,7 @@ from Utilities.Colors import *
 from Utilities.Targets import *
 from Utilities.Super import *
 from Utilities.Tutorials import tutorials
-
+from report_api.Report import Report
 
 def parse_event(event_name, event_json, datetime):
     # заменяем двойные двойные кавычки на одинакрные двойные кавычки (да, тупо...)
@@ -21,7 +21,7 @@ def parse_event(event_name, event_json, datetime):
     try:
         parameters = json.loads(event_json)
     except ValueError as er:
-        print("Json error:", event_name, event_json)
+        Report.not_found.add("Json opening error: event:"+ event_name+" json: "+ event_json)
         return None
     except Exception as er:
         print(er.args)
@@ -39,11 +39,13 @@ def parse_event(event_name, event_json, datetime):
         elif event_name == "Tutorial":
             new_event = parse_tutorial_complete(parameters, datetime)
         else:
-            raise ValueError("Event parse: Unknown event name:", event_name, datetime)
+            #raise ValueError("Event parse: Unknown event name:", event_name, datetime)
+            pass
 
     except Exception as error:
-        print("Error:", event_name, "\nJson:", event_json)
-        print(error.args)
+        Report.not_found.add("Error: "+event_name+" Json: "+ event_json)
+        #print("Error: "+event_name+" Json: "+ event_json)
+        #print(error.args)
         return
 
     return new_event
@@ -147,7 +149,11 @@ def parse_match3_event(parameters, datetime):
             raise ValueError("Event parse: Unknown Match 3 event type:", event_type)
 
     except ValueError as error:
-        print(error.args)
+
+        Report.not_found.add("parse m3 event "+event_type+" "+level_num)
+        #print("parse m3 event",event_type,level_num)
+        #print(parameters)
+        #print(error.args)
 
 
 def get_targets_list(params):
@@ -188,7 +194,7 @@ def get_elements(params):
             targets[target] = value
             continue
 
-        print("Elements parse: Unknown object:", key)
+        Report.not_found.add("Elements parse: Unknown object: "+ key)
         others[key] = value
 
     return Elements(super_count=supers, targets_count=targets, colors_count=colors, others_count=others)
@@ -301,11 +307,12 @@ def parse_city_event(parameters, datetime):
             )
 
         elif event_type == "UpdateBuilding":
+
             building = [x for x in list(parameters[event_type].keys()) if x != "premiumCoin"][0]
             # костыль
             game_coin = int(parameters[event_type]["gameCoin"]) if "gameCoin" in list(
                 parameters[event_type].keys()) else None
-            quest_id = int(parameters[event_type]["Quest"]) if "Quest" in list(
+            quest_id = parameters[event_type]["Quest"] if "Quest" in list(
                 parameters[event_type].keys()) else None
 
             return CityEventsUpdateBuilding(
@@ -379,11 +386,15 @@ def parse_city_event(parameters, datetime):
                 datetime=datetime
             )
         elif event_type == "Restore":
+            try:
+                parameters[event_type].keys()
+            except:
+                return None
             game_coin = int(parameters[event_type]["gameCoin"]) if "gameCoin" in list(
                 parameters[event_type].keys()) else None
-            quest_id = int(parameters[event_type]["Quest"]) if "Quest" in list(
+            quest_id = parameters[event_type]["Quest"] if "Quest" in list(
                 parameters[event_type].keys()) else None
-            obj = int(parameters[event_type]["Object"]) if "Object" in list(
+            obj = parameters[event_type]["Object"] if "Object" in list(
                 parameters[event_type].keys()) else parameters[event_type]
             return CityEventsRestore(
                 object_name=obj,
@@ -409,7 +420,10 @@ def parse_city_event(parameters, datetime):
             raise ValueError("Event parse: Unknown City event type:", event_type)
 
     except ValueError as error:
-        print(error.args)
+        Report.not_found.add("parse city event "+event_type)
+        #print("parse city event",event_type)
+        #print(parameters)
+        #print(error.args)
 
 
 def parse_tutorial_steps(parameters, datetime):
@@ -424,7 +438,7 @@ def parse_tutorial_steps(parameters, datetime):
 def parse_tutorial_complete(parameters, datetime):
     tutorial_code = list(parameters.keys())[0]
     if tutorial_code not in tutorials.keys():
-        print("Event parse: Unknown tutorial:", tutorial_code)
+        Report.not_found.add("Event parse: Unknown tutorial: "+ tutorial_code)
     return Tutorial(
         tutorial_code=tutorial_code,
         status=parameters[tutorial_code],

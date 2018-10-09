@@ -1,8 +1,9 @@
+from report_api.Report import Report
 def get_tutorial_name(tutorial_code):
     if tutorial_code in tutorials.keys():
         return tutorials[tutorial_code]
     else:
-        print("Unknown tutorial:", tutorial_code)
+        Report.not_found.add("Tuturial list. Unknown tutorial: "+ tutorial_code)
         return
 
 

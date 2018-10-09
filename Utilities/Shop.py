@@ -1,6 +1,9 @@
-def get_price(coins,money="rub"):
-    if coins=="100gold":
-        if money=="rub":
+from report_api.Report import Report
+
+
+def get_price(coins, money="rub"):
+    if coins == "100gold":
+        if money == "rub":
             return 75
     elif coins == "550gold":
         if money == "rub":
@@ -18,4 +21,5 @@ def get_price(coins,money="rub"):
         if money == "rub":
             return 7490
     else:
-        print("Unknown object:",coins)
+        # Report.not_found.add("Unknown object: "+coins)
+        return

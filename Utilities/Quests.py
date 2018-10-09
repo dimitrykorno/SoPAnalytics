@@ -1,3 +1,5 @@
+from report_api.Report import Report
+
 # список локаций/квестов/уровней
 loc_quest_level = {
 
@@ -109,7 +111,7 @@ def get_locquest(level_num):
         for quest in loc_quest_level[loc].keys():
             if level_num in loc_quest_level[loc][quest]:
                 return loc + quest
-    print("Уровня нет в списке:", level_num)
+    Report.not_found.add("Уровня нет в списке: " + level_num)
 
 
 def get_last_loc_quest(level_or_quest):
@@ -145,7 +147,7 @@ def get_completed_locquests(finished_levels):
 
 
 def get_levels_list(locquest=True, fail=False, tutorial=True, tutorial_order=original_tutorial_order, level=True):
-    print("tutor list",tutorial_order)
+    print("tutor list", tutorial_order)
     list = []
     if tutorial:
         index = 0
@@ -181,9 +183,6 @@ def get_levels_list(locquest=True, fail=False, tutorial=True, tutorial_order=ori
                     while index + 1 < len(tutorial_order) and "Tutorial" in tutorial_order[index + 1]:
                         list.append(tutorial_order[index + 1])
                         index += 1
-
-
-
 
     return list
 

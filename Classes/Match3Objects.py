@@ -1,3 +1,4 @@
+from report_api.Report import Report
 class Target:
     __slots__ = {'target_count', 'target', 'overflow_target_cunt'}
 
@@ -30,7 +31,7 @@ class Bonuses:
             self.second += bonuses.second
             self.third += bonuses.third
         else:
-            print("Ошибка типа при сложении бонусов")
+            Report.not_found.add("Ошибка типа при сложении бонусов")
 
     def minus(self, bonuses):
         if bonuses.__class__ is Bonuses:
@@ -38,7 +39,7 @@ class Bonuses:
             self.second -= bonuses.second
             self.third -= bonuses.third
         else:
-            print("Ошибка типа при вычитании бонусов")
+            Report.not_found.add("Ошибка типа при вычитании бонусов")
 
 
 class Elements:
