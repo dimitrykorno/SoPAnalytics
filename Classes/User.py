@@ -25,12 +25,14 @@ class User:
         self.installed_app_version = None
         self.skipped = False
 
-    def get_status(self):
-        return str("Final status: Premium coin: " + str(self.premium_coin) + " Game coin: " + str(self.game_coin) +
-                   " Lives: " + str(self.lives) + " Bonuses: " + self.bonuses.to_string())
+
 
     def is_skipped(self):
         return self.skipped
+
+    def is_new_session(self, previous_event, current_event):
+        if isinstance(current_event, CityEventsInitGameState):
+            return True
 
     def user_status_update(self, current_event, previous_event):
         '''
@@ -108,5 +110,13 @@ class User:
             self.game_coin = current_event.game_coin
 
         elif current_event.__class__ is CityEventsUpdateBuilding:
-            if current_event.premium_coin is not None:
-                self.premium_coin = current_event.premium_coin
+            if current_event.game_coin is not None:
+                self.game_coin = current_event.game_coin
+
+        elif isinstance(current_event,CityEventsRestore):
+            if current_event.game_coin is not None:
+                self.game_coin = current_event.game_coin
+
+    def get_status(self):
+        return str("Final status: Premium coin: " + str(self.premium_coin) + " Game coin: " + str(self.game_coin) +
+                   " Lives: " + str(self.lives) + " Bonuses: " + self.bonuses.to_string())
