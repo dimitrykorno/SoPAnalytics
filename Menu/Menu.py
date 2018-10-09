@@ -1,12 +1,13 @@
+import inspect
+
 from Reports import M3LevelsFunnel, M3DetailedLevel, GlobalFunnel, UsersSessions, M3LevelBonuses, LastEventHistogram, \
     DetailedFunnel, LifetimeHistogram, ProgressHistogram, DustDynamics, AccumulativeROI, RetentionPatternHypothesis, \
     M3LevelsMonetization
-import inspect
 
 reports = {
     "1. Отчёт по качеству уровней": M3LevelsFunnel.new_report,
     "2. Подробный отчёт по уровню": M3DetailedLevel.new_report,
-    "3. Глобальные отвалы": GlobalFunnel.new_report,
+    "3. Глобальные отвалы c квестами и обучением": GlobalFunnel.new_report,
     "4. Порядок уровней в квесте перед отвалом": DetailedFunnel.new_report,
     "5. Использование бонусов по уровням": M3LevelBonuses.new_report,
     "6. Печать сессий": UsersSessions.new_report,
