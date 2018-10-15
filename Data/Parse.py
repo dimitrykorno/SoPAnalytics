@@ -6,11 +6,14 @@ except ImportError:
     import json
 
 import re
+
+from report_api import Report
+
 from Classes.Events import *
 from Classes.Match3Objects import *
 from Utilities.Colors import *
-from Utilities.Targets import *
 from Utilities.Super import *
+from Utilities.Targets import *
 from Utilities.Tutorials import tutorials
 
 
@@ -42,8 +45,9 @@ def parse_event(event_name, event_json, datetime):
             raise ValueError("Event parse: Unknown event name:", event_name, datetime)
 
     except Exception as error:
-        print("Error:", event_name, "\nJson:", event_json)
-        print(error.args)
+
+        Report.Report.not_found.add("Error: " + event_name + "\nJson: " + event_json)
+        # print(error.args)
         return
 
     return new_event
@@ -303,17 +307,25 @@ def parse_city_event(parameters, datetime):
         elif event_type == "UpdateBuilding":
             building = [x for x in list(parameters[event_type].keys()) if x != "premiumCoin"][0]
             # костыль
-            game_coin = int(parameters[event_type]["gameCoin"]) if "gameCoin" in list(
+            premium_coin = int(parameters[event_type]["premiumCoin"]) if "premiumCoin" in list(
                 parameters[event_type].keys()) else None
-            quest_id = int(parameters[event_type]["Quest"]) if "Quest" in list(
+            quest_id = parameters[event_type]["Quest"] if "Quest" in list(
                 parameters[event_type].keys()) else None
 
             return CityEventsUpdateBuilding(
                 building=building,
                 level=parameters[event_type][building],
-                game_coin=game_coin,
+                premium_coin=premium_coin,
                 datetime=datetime,
                 quest_id=quest_id
+            )
+        elif event_type == "BuyNoDustWindow":
+            return CityEventsBuyNoDustWindow(
+                game_coin=parameters[event_type]["gameCoin"],
+                premium_coin=parameters[event_type]["premiumCoin"],
+                quest_id=parameters[event_type]["Quest"],
+                status=parameters[event_type]["Status"],
+                datetime=datetime
             )
 
         elif event_type == "Button":
@@ -379,11 +391,13 @@ def parse_city_event(parameters, datetime):
                 datetime=datetime
             )
         elif event_type == "Restore":
+            if isinstance(parameters[event_type], str):
+                return None
             game_coin = int(parameters[event_type]["gameCoin"]) if "gameCoin" in list(
                 parameters[event_type].keys()) else None
-            quest_id = int(parameters[event_type]["Quest"]) if "Quest" in list(
+            quest_id = parameters[event_type]["Quest"] if "Quest" in list(
                 parameters[event_type].keys()) else None
-            obj = int(parameters[event_type]["Object"]) if "Object" in list(
+            obj = parameters[event_type]["Object"] if "Object" in list(
                 parameters[event_type].keys()) else parameters[event_type]
             return CityEventsRestore(
                 object_name=obj,
@@ -392,6 +406,8 @@ def parse_city_event(parameters, datetime):
                 quest_id=quest_id
             )
         elif event_type == "Remove":
+            # if "premiumCoin" not in parameters[event_type].keys():
+            #    return None
             return CityEventsRemove(
                 object_name=parameters[event_type],
                 datetime=datetime,
