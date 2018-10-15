@@ -23,7 +23,7 @@ def parse_event(event_name, event_json, datetime):
 
     try:
         parameters = json.loads(event_json)
-    except ValueError :
+    except ValueError:
         Report.Report.not_found.add("Json error:" + event_name + " " + event_json)
         return None
     except Exception as er:

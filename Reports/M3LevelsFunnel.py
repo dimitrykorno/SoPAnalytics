@@ -3,7 +3,6 @@ import pandas as pd
 from datetime import timedelta
 from Utilities.Quests import get_level_names
 from Classes.Events import *
-from report_api.OS import OS
 from Data import Parse
 from Classes.User import User
 from report_api.Report import Report
@@ -162,17 +161,17 @@ def new_report(os_list=["iOS"],
         current_level = None
         clean_start = True
 
-        def flush_user_data(started_levels, finished_levels):
+        def flush_user_data():
             # если вышло время, то работаем с текущим пользователем
             if Report.is_new_user():
                 user = Report.previous_user
             else:
                 user = Report.current_user
 
-            for level in started_levels:
-                levels_data[level]["Started"] += 1
-            for level in finished_levels:
-                levels_data[level]["Finished"] += 1
+            for level1 in finished_levels:
+                levels_data[level1]["Started"] += 1
+            for level2 in finished_levels:
+                levels_data[level2]["Finished"] += 1
 
             # Проверка на отвал
             # При отсутствии максимального дня в игре (для среза выборки) берется макс дата из базы данных.
@@ -182,8 +181,8 @@ def new_report(os_list=["iOS"],
                                                       user.install_date + timedelta(
                                                           days=days_max), measure="day") > days_left):
                 if started_levels:
-                    for level in list(started_levels - finished_levels):
-                        levels_data[level][left_par] += 1
+                    for level3 in list(started_levels - finished_levels):
+                        levels_data[level3][left_par] += 1
 
         while Report.get_next_event():
 
@@ -202,7 +201,7 @@ def new_report(os_list=["iOS"],
                 if (Report.is_new_user() and not Report.previous_user.is_skipped()) or (
                             Report.get_time_since_install() > days_max):
                     # print("flush",Report.is_new_user(), (Report.get_time_since_install() > days_max))
-                    flush_user_data(started_levels, finished_levels)
+                    flush_user_data()
                     # сброс личных параметров
                     started_levels = set()
                     finished_levels = set()
@@ -220,7 +219,7 @@ def new_report(os_list=["iOS"],
                 clean_attempts()
                 first_purchase = purchases()
                 dust()
-        flush_user_data(started_levels, finished_levels)
+        flush_user_data()
 
         df = pd.DataFrame(index=levels,
                           columns=parameters)

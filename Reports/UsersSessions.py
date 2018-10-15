@@ -1,11 +1,8 @@
-from Classes.Events import CityEventsInitGameState
-from Utilities.Utils import time_count, test_devices_ios
 from Classes.Events import *
-from report_api.OS import OS
 from Data import Parse
 from Classes.User import User
 from report_api.Report import Report
-from datetime import datetime, date
+from datetime import date
 from report_api.Utilities.Utils import time_count
 
 app = "sop"
@@ -65,8 +62,6 @@ def new_report(short_info=True,
 
                 # Создаем текст сессий на вывод
                 output_string += "\n\nNew user: " + str(Report.previous_user.user_id) + "\n"
-                if Report.previous_user.user_id in test_devices_ios:
-                    output_string += "TESTER\n"
                 output_string += events_string
                 if user_status:
                     if first_session:

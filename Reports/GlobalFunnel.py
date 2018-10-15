@@ -2,7 +2,6 @@ import pandas as pd
 from Utilities.Quests import *
 
 from Classes.Events import *
-from report_api.OS import OS
 from Data import Parse
 from Classes.User import User
 from report_api.Report import Report
@@ -77,12 +76,12 @@ def new_report(os_list=["iOS"],
             funnel_data[l] = dict.fromkeys(parameters, 0)
 
         def flush_user_info():
-            for lvl in started_levels:
-                funnel_data["Start  " + lvl]["Retention"] += 1
-            for lvl in completed_levels:
-                funnel_data["Finish " + lvl]["Retention"] += 1
-            for lvl in finished_levels:
-                funnel_data["Finish " + lvl]["FinishGame"] += 1
+            for lvl1 in started_levels:
+                funnel_data["Start  " + lvl1]["Retention"] += 1
+            for lvl2 in completed_levels:
+                funnel_data["Finish " + lvl2]["Retention"] += 1
+            for lvl3 in finished_levels:
+                funnel_data["Finish " + lvl3]["FinishGame"] += 1
 
             for quest in started_quests:
                 funnel_data["Start  " + quest]["Retention"] += 1

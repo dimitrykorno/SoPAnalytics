@@ -72,7 +72,7 @@ def new_report(os_list=["iOS"],
                 current_session = Report.current_event.session_id
 
             elif Report.current_event.__class__ is Match3CompleteTargets and \
-                            Report.current_event.session_id == current_session:
+                    Report.current_event.session_id == current_session:
                 # Выполнение целей
                 df.loc[index, "Finish"] = Report.current_event.datetime
                 # Время на уровне
@@ -95,14 +95,14 @@ def new_report(os_list=["iOS"],
                 add_elements(df, index, Report.current_event)
 
             elif Report.current_event.__class__ is Match3FinishGame and \
-                            Report.current_event.session_id == current_session:
+                    Report.current_event.session_id == current_session:
                 # Конец уровня (перезапись)
                 df.loc[index, "Finish"] = Report.current_event.datetime
                 # Получено пыли (дополнение после magic time)
                 df.loc[index, "Got coins"] = Report.current_event.game_currency_count
 
             elif Report.current_event.__class__ is Match3FailGame and \
-                            Report.current_event.session_id == current_session:
+                    Report.current_event.session_id == current_session:
                 # Конец уровня
                 df.loc[index, "Finish"] = Report.current_event.datetime
                 # Поражение

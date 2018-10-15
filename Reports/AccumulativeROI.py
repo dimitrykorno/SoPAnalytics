@@ -182,7 +182,7 @@ def new_report(os_list=["iOS"],
                 for day in range(previous_day_in_game, day_in_game):
                     user_accumulative[str(day) + "d"] = ltv
             if Report.current_event.datetime.date() in user_dau.keys() and user_dau[
-                Report.current_event.datetime.date()] is None:
+                    Report.current_event.datetime.date()] is None:
                 user_dau[Report.current_event.datetime.date()] = 0
 
             # Обновляем LTV новой покупкой и Revenue в DAU

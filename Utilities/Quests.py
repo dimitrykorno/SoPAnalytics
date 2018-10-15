@@ -186,20 +186,20 @@ def get_levels_list(locquest=True, fail=False, tutorial=True, tutorial_order=ori
 
 
 def get_levels():
-    list = []
+    result_list = []
     for loc in loc_quest_level.keys():
         for quest in loc_quest_level[loc].keys():
             for level in loc_quest_level[loc][quest]:
-                list.append(level)
-    return list
+                result_list.append(level)
+    return result_list
 
 
 def get_locquests_list():
-    list = []
+    result_list = []
     for loc in loc_quest_level.keys():
         for quest in loc_quest_level[loc].keys():
-            list.append(loc + quest)
-    return list
+            result_list.append(loc + quest)
+    return result_list
 
 
 def get_level_names(start, quantity):

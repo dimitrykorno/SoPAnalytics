@@ -1,8 +1,8 @@
 from enum import Enum
 
 supers_set = (
-"Super_SmallLightning_h", "Super_SmallLightning_v", "Super_FireSpark", "Super_FireRing", "Super_BigLightning_h",
-"Super_BigLightning_v", "Super_SphereOfFire", "Super_TwoStarBonus", "StarBonus")
+    "Super_SmallLightning_h", "Super_SmallLightning_v", "Super_FireSpark", "Super_FireRing", "Super_BigLightning_h",
+    "Super_BigLightning_v", "Super_SphereOfFire", "Super_TwoStarBonus", "StarBonus")
 
 
 class Supers(Enum):

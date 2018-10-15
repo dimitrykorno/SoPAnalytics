@@ -193,7 +193,7 @@ class CityEventsStartGame(Event):
         info = super().to_string()
         info += "Level: " + str(
             self.level_num) + "\n" + " " * indent + "Bonuses: " + self.start_bonuses.to_string() + \
-                ", Ingame Bonuses: " + str(self.ingame_bonuses) + "\n" + " " * indent + "Premium coin: " + str(
+            ", Ingame Bonuses: " + str(self.ingame_bonuses) + "\n" + " " * indent + "Premium coin: " + str(
             self.premium_coin) + ", Game coin: " + str(self.game_coin)
         return info
 

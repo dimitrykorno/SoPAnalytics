@@ -1,12 +1,10 @@
 from Utilities.Quests import get_level_names
 import pandas as pd
 from Classes.Events import *
-from report_api.OS import OS
 from Data import Parse
 from Classes.User import User
 from report_api.Report import Report
-from datetime import datetime
-from report_api.Utilities.Utils import time_count, outliers_iqr
+from report_api.Utilities.Utils import time_count
 
 app = "sop"
 
@@ -41,52 +39,52 @@ def levels_monetization(start=1,
                                max_version=None,
                                events_list=[("Match3Events", "%BuyPremiumCoinM3%Success%")])
 
-    parameters = ["Sum", "100 quant", "Money",
-                  "550 quant", "Money",
-                  "1200 quant", "Money",
-                  "2500 quant", "Money",
-                  "5300 quant", "Money",
-                  "11000 quant", "Money"]
-    countries = {}
+        parameters = ["Sum", "100 quant", "Money",
+                      "550 quant", "Money",
+                      "1200 quant", "Money",
+                      "2500 quant", "Money",
+                      "5300 quant", "Money",
+                      "11000 quant", "Money"]
+        countries = {}
 
-    while Report.get_next_event():
+        while Report.get_next_event():
 
-        country = Report.current_user.country
-        level = Report.current_event.level_num
-        quant = Report.current_event.purchase[:-4] + " quant"
-        money = Report.current_event.purchase[:-4] + " money"
-        price = Report.current_event.price
+            country = Report.current_user.country
+            level = Report.current_event.level_num
+            quant = Report.current_event.purchase[:-4] + " quant"
+            money = Report.current_event.purchase[:-4] + " money"
+            price = Report.current_event.price
 
-        if country not in countries.keys():
-            countries[country] = {}
+            if country not in countries.keys():
+                countries[country] = {}
 
-        if start <= int(level) <= (start + quantity - 1):
-            if level not in countries[country].keys():
-                countries[country][level] = dict.fromkeys(parameters, 0)
-            countries[country][level]["Sum"] += price
-            countries[country][level][quant] += 1
-            countries[country][level][money] += price
+            if start <= int(level) <= (start + quantity - 1):
+                if level not in countries[country].keys():
+                    countries[country][level] = dict.fromkeys(parameters, 0)
+                countries[country][level]["Sum"] += price
+                countries[country][level][quant] += 1
+                countries[country][level][money] += price
 
-    writer = pd.ExcelWriter("Sales " + str(start) + "-" + str(start + quantity - 1) + " " + os_str + ".xlsx")
-    for country in countries:
-        df = pd.DataFrame(index=levels,
-                          columns=["Sum", "100 quant", "100 money",
-                                   "550 quant", "550 money",
-                                   "1200 quant", "1200 money",
-                                   "2500 quant", "2500 money",
-                                   "5300 quant", "5300 money",
-                                   "11000 quant", "11000 money"])
-        df = df.fillna(0)
-        for level in levels:
-            for param in parameters:
-                df.at[level, param] = countries[country][level][param]
+        writer = pd.ExcelWriter("Sales " + str(start) + "-" + str(start + quantity - 1) + " " + os_str + ".xlsx")
+        for country in countries:
+            df = pd.DataFrame(index=levels,
+                              columns=["Sum", "100 quant", "100 money",
+                                       "550 quant", "550 money",
+                                       "1200 quant", "1200 money",
+                                       "2500 quant", "2500 money",
+                                       "5300 quant", "5300 money",
+                                       "11000 quant", "11000 money"])
+            df = df.fillna(0)
+            for level in levels:
+                for param in parameters:
+                    df.at[level, param] = countries[country][level][param]
 
-        countries[country].to_excel(excel_writer=writer,
-                                    sheet_name=country,
-                                    header=["Sum", "100 quant", "Money",
-                                            "550 quant", "Money",
-                                            "1200 quant", "Money",
-                                            "2500 quant", "Money",
-                                            "5300 quant", "Money",
-                                            "11000 quant", "Money"])
-    writer.save()
+            countries[country].to_excel(excel_writer=writer,
+                                        sheet_name=country,
+                                        header=["Sum", "100 quant", "Money",
+                                                "550 quant", "Money",
+                                                "1200 quant", "Money",
+                                                "2500 quant", "Money",
+                                                "5300 quant", "Money",
+                                                "11000 quant", "Money"])
+        writer.save()

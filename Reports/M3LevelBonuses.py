@@ -1,11 +1,9 @@
 from Utilities.Quests import *
 import pandas as pd
 from Classes.Events import *
-from report_api.OS import OS
 from Data import Parse
 from Classes.User import User
 from report_api.Report import Report
-from datetime import datetime
 from report_api.Utilities.Utils import time_count
 
 app = "sop"

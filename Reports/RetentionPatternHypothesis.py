@@ -1,11 +1,9 @@
 import pandas as pd
 from Classes.PatternPresets import *
 from Classes.Events import *
-from report_api.OS import OS
 from Data import Parse
 from Classes.User import User
 from report_api.Report import Report
-from datetime import datetime
 from report_api.Utilities.Utils import time_count
 
 app = "sop"
@@ -129,6 +127,7 @@ def new_report(patt="ВНИМАНИЕ! ЗАДАЙТЕ ПАТТЕРНЫ ВРУЧ�
         user_session_events = []
         user_day_events = []
         previous_day_in_game = 0
+        day_in_game=0
         if min_quest:
             min_quest = CityEventsQuest(quest_id=min_quest, action="Take", datetime=None)
         user_retention = [0] * (days_since_install + 1)
@@ -174,7 +173,7 @@ def new_report(patt="ВНИМАНИЕ! ЗАДАЙТЕ ПАТТЕРНЫ ВРУЧ�
                     if not final_completion_period and \
                                     user_pattern_completion[period] > 0 and \
                             (patt.max_completions is not None and patt.max_completions > 0
-                             or patt.max_completions is None):
+                                or patt.max_completions is None):
                         final_completion_period = period
                     overall_pattern_completions += user_pattern_completion[period]
                 # если паттерн выполнен меньше минимума или больше максимума раз - выходим, не подходит
