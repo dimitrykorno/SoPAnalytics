@@ -1,5 +1,6 @@
-from Classes.Match3Objects import Bonuses
 from Classes.Events import *
+from Classes.Match3Objects import Bonuses
+
 
 class User:
     def __init__(self, id_2, id_1=None):
@@ -32,12 +33,17 @@ class User:
     def is_skipped(self):
         return self.skipped
 
+    def is_new_session(self, previous_event, current_event):
+        if isinstance(current_event, CityEventsInitGameState):
+            return True
+        else:
+            return False
+
     def user_status_update(self, current_event, previous_event):
         '''
         обновление статуса игрока
         для корректной работы необходимо включить в запрос события, включающие данные о валюте, покупках, жизнях и тд
         '''
-
 
         # при старте матч3 вычитаем выбранные и прибавляем купленные бонусы, обновляем жизни
         if current_event.__class__ is Match3StartGame:
