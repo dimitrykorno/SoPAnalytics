@@ -6,13 +6,13 @@ import matplotlib.pyplot as plt
 # noinspection PyDefaultArgument,PyDefaultArgument
 @time_count
 def new_report(os_list=["iOS"], max_days=100, app_versions=['5.1', '5.3']):
-    '''
+    """
     Построение графиков Lifetime по одному/нескольким версиям одновременно
     :param os_list:
     :param max_days: максимальное кол-во дней на графике
     :param app_versions: версии приложения (вводить в виде '5.1', '5,3' )
     :return:
-    '''
+    """
     for os_str in os_list:
         plt.figure(figsize=(12, 8))
         plt.title("Отвалы " + os_str)

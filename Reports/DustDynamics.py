@@ -3,7 +3,6 @@ import pandas as pd
 from Utilities.Quests import get_locquests_list, get_locquest, get_next_locquest
 from matplotlib import pyplot as plt
 from Classes.Events import *
-from report_api.OS import OS
 from Data import Parse
 from Classes.User import User
 from report_api.Report import Report
@@ -34,7 +33,6 @@ def new_report(os_list=["iOS"],
 
     # БАЗА ДАННЫХ
     for os_str in os_list:
-        os = OS.get_os(os_str)
         # БАЗА ДАННЫХ
         Report.set_app_data(parser=Parse, user_class=User, event_class=Event,
                             os=os_str, app=app, user_status_check=True)

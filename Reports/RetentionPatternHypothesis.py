@@ -13,7 +13,7 @@ app = "sop"
 
 # noinspection PyDefaultArgument,PyDefaultArgument
 @time_count
-def new_report(pattern="ВНИМАНИЕ! ЗАДАЙТЕ ПАТТЕРНЫ ВРУЧНУЮ.",
+def new_report(patt="ВНИМАНИЕ! ЗАДАЙТЕ ПАТТЕРНЫ ВРУЧНУЮ.",
                os_list=["iOS"],
                period_start=None,
                period_end=None,
@@ -41,7 +41,6 @@ def new_report(pattern="ВНИМАНИЕ! ЗАДАЙТЕ ПАТТЕРНЫ ВРУ
     # БАЗА ДАННЫХ
 
     for os_str in os_list:
-        os = OS.get_os(os_str)
         # БАЗА ДАННЫХ
         Report.set_app_data(parser=Parse, user_class=User, event_class=Event,
                             os=os_str, app=app, user_status_check=False)

@@ -70,5 +70,5 @@ class Targets(Enum):
         elif target == "CrystalBall":
             return Targets.CrystalBall
         else:
-            #print("Unknown target", target)
+            # print("Unknown target", target)
             return

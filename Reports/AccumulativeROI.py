@@ -141,7 +141,8 @@ def new_report(os_list=["iOS"],
                 sources[publisher][source] = {}
                 transactions[publisher][source] = []
                 dau[publisher][source] = {}
-                for date_t in rrule(DAILY, dtstart=period_start, until=(period_end + timedelta(days=days_since_install))):
+                for date_t in rrule(DAILY, dtstart=period_start,
+                                    until=(period_end + timedelta(days=days_since_install))):
                     dau[publisher][source][date_t.date()] = {"Users": 0, "Revenue": 0}
             if Report.previous_user.install_date not in sources[publisher][source].keys():
                 sources[publisher][source][Report.previous_user.install_date] = dict.fromkeys(parameters, 0)
@@ -439,7 +440,6 @@ def new_report(os_list=["iOS"],
             else:
                 y_real_arpu = [0] * 20
                 print(publisher, "no installs")
-            x = np.arange(0, days_since_install + 1, 0.1)
             approximator = log_approximation(range(len(y_real_arpu)), y_real_arpu)
             y = approximator(np.arange(0, 60, 1))
             plt.plot(range(len(y_real_arpu)), y_real_arpu, '*', color="green", label="known")

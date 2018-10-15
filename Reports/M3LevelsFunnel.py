@@ -38,7 +38,6 @@ def new_report(os_list=["iOS"],
     days_max = int(days_max)
 
     for os_str in os_list:
-        os = OS.get_os(os_str)
         # БАЗА ДАННЫХ
         Report.set_app_data(parser=Parse, user_class=User, event_class=Event,
                             os=os_str, app=app, user_status_check=True)
@@ -167,10 +166,8 @@ def new_report(os_list=["iOS"],
             # если вышло время, то работаем с текущим пользователем
             if Report.is_new_user():
                 user = Report.previous_user
-                user_str = "previous"
             else:
                 user = Report.current_user
-                user_str = "current"
 
             for level in started_levels:
                 levels_data[level]["Started"] += 1

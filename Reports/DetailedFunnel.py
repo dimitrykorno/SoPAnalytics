@@ -2,12 +2,10 @@ import pandas as pd
 from Utilities.Quests import get_last_loc_quest, loc_quest_level
 import itertools
 from Classes.Events import *
-from report_api.OS import OS
 from Data import Parse
 from Classes.User import User
 from report_api.Report import Report
-from datetime import datetime
-from report_api.Utilities.Utils import time_count, outliers_iqr
+from report_api.Utilities.Utils import time_count
 
 app = "sop"
 
@@ -21,7 +19,7 @@ def new_report(game_point="0030",
                min_version=None,
                max_version=None,
                countries_list=[]):
-    '''
+    """
     Подробный разбор событий, предшествующих отвалу
     :param os_list:
     :param period_start:
@@ -31,10 +29,9 @@ def new_report(game_point="0030",
     :param countries_list:
     :param game_point: Номер квеста или уровня
     :return:
-    '''
+    """
     # БАЗА ДАННЫХ
     for os_str in os_list:
-        os = OS.get_os(os_str)
         # БАЗА ДАННЫХ
         Report.set_app_data(parser=Parse, user_class=User, event_class=Event,
                             os=os_str, app=app, user_status_check=True)
@@ -65,7 +62,6 @@ def new_report(game_point="0030",
         levels = loc_quest_level[loc][quest]
         orders = list(itertools.permutations(levels))
 
-        user_orders = None
         user_events = []
 
         list_orders = {}
@@ -79,7 +75,7 @@ def new_report(game_point="0030",
             if Report.is_new_user():
                 in_area = False
                 if user_events:
-                    user_orders = corresponding_orders(user_events, orders)
+                    user_orders = corresponding_orders(user_events)
                     if user_orders in orders:
                         list_orders[user_orders] += 1
                 user_events = []
@@ -110,13 +106,9 @@ def new_report(game_point="0030",
         writer.save()
 
 
-def corresponding_orders(user_events, orders):
-    orders_list = orders.copy()
+def corresponding_orders(user_events):
     user_order = []
     for event in user_events:
         if "Match3FinishGame" in event:
             user_order.append(event[-4:])
     return tuple(user_order)
-    for index, user_order in enumerate(user_order):
-        orders_list = [order for order in orders_list if order[index] == user_order]
-    return orders_list

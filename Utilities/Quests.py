@@ -113,13 +113,13 @@ def get_locquest(level_num):
 
 
 def get_last_loc_quest(level_or_quest):
-    '''
+    """
     Возвращает номер последнего квеста.
     Если передан номер уровня - номер текущего квеста.
     Если передан номер квеста - номер предыдущего квеста.
     :param level_or_quest: номер уровня или квеста
     :return: номер последнего квеста
-    '''
+    """
     previous_quest = "loc00q00"
     for loc in loc_quest_level.keys():
         for quest in loc_quest_level[loc].keys():

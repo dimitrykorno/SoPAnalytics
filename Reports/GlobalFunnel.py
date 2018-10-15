@@ -21,7 +21,7 @@ def new_report(os_list=["iOS"],
                max_version=None,
                countries_list=[],
                days_left=7):
-    '''
+    """
     Глобальные конверсии по квестам и уровням в них и отвалы с монетами на момент отвала
 
     !!!ВАЖНО!!! Порядок и положение туториалов меняется в зависимости от версии игры
@@ -34,10 +34,9 @@ def new_report(os_list=["iOS"],
     :param countries_list:
     :param days_left: кол-во дней, после которого человек отвалился
     :return:
-    '''
+    """
 
     for os_str in os_list:
-        os = OS.get_os(os_str)
         # БАЗА ДАННЫХ
         Report.set_app_data(parser=Parse, user_class=User, event_class=Event,
                             os=os_str, app=app, user_status_check=False)

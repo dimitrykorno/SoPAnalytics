@@ -42,13 +42,13 @@ def time_medium(fn):
 
 
 def get_timediff(datetime_1=None, datetime_2=None, measure="min"):
-    '''
+    """
     Определение разницы во времени
     :param datetime_1: первое время
     :param datetime_2: второе время
     :param measure: мера min/sec/day (min по умолчанию)
     :return: разница во времени, по умолчанию - между текущим и предыдущим событием
-    '''
+    """
 
     if measure == "min":
         return abs(datetime_1.timestamp() - datetime_2.timestamp()) / 60

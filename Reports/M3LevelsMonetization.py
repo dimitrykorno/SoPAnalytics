@@ -21,9 +21,9 @@ def levels_monetization(start=1,
                         min_version=None,
                         max_version=None,
                         countries_list=[]):
+
     levels = get_level_names(start, quantity)
     for os_str in os_list:
-        os = OS.get_os(os_str)
         # БАЗА ДАННЫХ
         Report.set_app_data(parser=Parse, user_class=User, event_class=Event,
                             os=os_str, app=app, user_status_check=True)

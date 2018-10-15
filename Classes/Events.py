@@ -101,8 +101,7 @@ class Match3CompleteTargets(Match3Event):
                 info += target.to_string() + "\n" + " " * indent
 
         info += "Bought steps: " + str(self.buy_steps_count) + ", Ingame bonuses: " + str(
-            self.ingame_bonuses) + \
-                "\n" + " " * indent + "Elements: " + self.elements_count.to_string()
+            self.ingame_bonuses) + "\n" + " " * indent + "Elements: " + self.elements_count.to_string()
         return info
 
 
@@ -193,8 +192,8 @@ class CityEventsStartGame(Event):
     def to_string(self):
         info = super().to_string()
         info += "Level: " + str(
-            self.level_num) + "\n" + " " * indent + "Bonuses: " + self.start_bonuses.to_string() + ", Ingame Bonuses: " + str(
-            self.ingame_bonuses) + "\n" + " " * indent + "Premium coin: " + str(
+            self.level_num) + "\n" + " " * indent + "Bonuses: " + self.start_bonuses.to_string() + \
+                ", Ingame Bonuses: " + str(self.ingame_bonuses) + "\n" + " " * indent + "Premium coin: " + str(
             self.premium_coin) + ", Game coin: " + str(self.game_coin)
         return info
 
@@ -303,9 +302,9 @@ class CityEventsQuest(Event):
 
 
 class CityEventsButton(Event):
-    '''
+    """
     Общий класс для однотипных кнопок: Store, Decoration, Leaderboard, Puzzle
-    '''
+    """
 
     def __init__(self, button, quest, action, datetime):
         super().__init__(datetime)

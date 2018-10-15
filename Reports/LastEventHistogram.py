@@ -1,11 +1,9 @@
 from collections import OrderedDict
 from matplotlib import pyplot as plt
 from Classes.Events import *
-from report_api.OS import OS
 from Data import Parse
 from Classes.User import User
 from report_api.Report import Report
-from datetime import datetime
 from report_api.Utilities.Utils import time_count
 
 app = "sop"
@@ -19,8 +17,8 @@ def new_report(os_list=["iOS"],
                min_version=None,
                max_version=None,
                countries_list=[]):
+
     for os_str in os_list:
-        os = OS.get_os(os_str)
         # БАЗА ДАННЫХ
         Report.set_app_data(parser=Parse, user_class=User, event_class=Event,
                             os=os_str, app=app, user_status_check=False)

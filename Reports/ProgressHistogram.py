@@ -2,11 +2,9 @@ from matplotlib import pyplot as plt
 import math
 from itertools import chain
 from Classes.Events import *
-from report_api.OS import OS
 from Data import Parse
 from Classes.User import User
 from report_api.Report import Report
-from datetime import datetime
 from report_api.Utilities.Utils import time_count
 
 app = "sop"
@@ -33,8 +31,6 @@ def new_report(os_list=["iOS"],
     for os_str in os_list:
         for version in app_version:
             # БАЗА ДАННЫХ
-            os = OS.get_os(os_str)
-
             Report.set_app_data(parser=Parse, user_class=User, event_class=Event,
                                 os=os_str, app=app, user_status_check=False)
 
@@ -75,7 +71,6 @@ def new_report(os_list=["iOS"],
 
                 if Report.is_new_user():
                     finished_levels = set()
-                    previous_day = None
 
                 finished_levels.add(Report.current_event.level_num)
                 previous_day = day_in_game

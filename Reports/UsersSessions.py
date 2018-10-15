@@ -25,7 +25,6 @@ def new_report(short_info=True,
                countries_list=[]):
     # БАЗА ДАННЫХ
     for os_str in os_list:
-        os = OS.get_os(os_str)
         # БАЗА ДАННЫХ
         Report.set_app_data(parser=Parse, user_class=User, event_class=Event,
                             os=os_str, app=app, user_status_check=True)
@@ -54,7 +53,6 @@ def new_report(short_info=True,
             output_file_not_returned = open("Results/Печать сессий/UserSessions.txt", "w")
 
         # ПАРАМЕТРЫ
-        skip_user_events = None
         returned_user = False
         output_string = ""
         events_string = ""

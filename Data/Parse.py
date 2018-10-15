@@ -23,8 +23,8 @@ def parse_event(event_name, event_json, datetime):
 
     try:
         parameters = json.loads(event_json)
-    except ValueError as er:
-        print("Json error:", event_name, event_json)
+    except ValueError :
+        Report.Report.not_found.add("Json error:" + event_name + " " + event_json)
         return None
     except Exception as er:
         print(er.args)
@@ -44,7 +44,7 @@ def parse_event(event_name, event_json, datetime):
         else:
             raise ValueError("Event parse: Unknown event name:", event_name, datetime)
 
-    except Exception as error:
+    except Exception:
 
         Report.Report.not_found.add("Error: " + event_name + "\nJson: " + event_json)
         # print(error.args)
@@ -193,7 +193,7 @@ def get_elements(params):
             targets[target] = value
             continue
 
-        print("Elements parse: Unknown object:", key)
+        Report.Report.not_found.add("Elements parse: Unknown object: " + key)
         others[key] = value
 
     return Elements(super_count=supers, targets_count=targets, colors_count=colors, others_count=others)
