@@ -4,7 +4,8 @@ indent = 20
 
 
 class Event:
-    medium_time=[]
+    medium_time = []
+
     def __init__(self, datetime):
         self.datetime = datetime
         pass
@@ -228,12 +229,12 @@ class CityEventsBuyDust(PurchaseEvent):
 
 
 class CityEventsUpdateBuilding(Event):
-    def __init__(self, building, level, game_coin, datetime, quest_id=""):
+    def __init__(self, building, level, premium_coin, datetime, quest_id=""):
         super().__init__(datetime)
         self.quest = quest_id
         self.building = building
         self.level = level
-        self.game_coin = game_coin
+        self.premium_coin = premium_coin
 
     def to_string(self):
         info = super().to_string()
@@ -268,7 +269,7 @@ class CityEventsQuest(Event):
         return self.to_string()
 
     @staticmethod
-    def compare_quests(q1,q2):
+    def compare_quests(q1, q2):
         if not isinstance(q1, CityEventsQuest) or not isinstance(q2, CityEventsQuest):
             print("Quest Comparision Error: q1 or q2 is not a quest")
         if "fin" in q1:
@@ -277,12 +278,12 @@ class CityEventsQuest(Event):
         elif "fin" in q2:
             if "fin" not in q1:
                 return -1
-        q1_loc=q1[3:4]
+        q1_loc = q1[3:4]
         q2_loc = q2[3:4]
         print(q1_loc)
-        if q1_loc>q2_loc:
+        if q1_loc > q2_loc:
             return 1
-        elif q2_loc>q1_loc:
+        elif q2_loc > q1_loc:
             return -1
         else:
             q1_q = q1[6:7]
@@ -293,12 +294,13 @@ class CityEventsQuest(Event):
             elif q2_q > q1_q:
                 return -1
             else:
-                if q1.action=="Take" and q2.action=="Complete":
+                if q1.action == "Take" and q2.action == "Complete":
                     return 1
-                elif q1.action=="Complete" and q2.action=="Take":
+                elif q1.action == "Complete" and q2.action == "Take":
                     return -1
                 else:
                     return 0
+
 
 class CityEventsButton(Event):
     '''
@@ -375,6 +377,15 @@ class CityEventsRemove(Event):
         info = super().to_string()
         info += "Remove: Quest: " + str(self.quest) + ", Object: " + str(self.object_name)
         return info
+
+
+class CityEventsBuyNoDustWindow(Event):
+    def __init__(self, game_coin, premium_coin, quest_id, status, datetime):
+        super().__init__(datetime)
+        self.game_coin = game_coin
+        self.premium_coin = premium_coin
+        self.quest = quest_id,
+        self.status = status
 
 
 class CityEventsMillDust(Event):
