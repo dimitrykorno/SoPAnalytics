@@ -26,5 +26,5 @@ class Colors(Enum):
         elif color == "Color6_White":
             return Colors.White
         else:
-            #print("Unknown color", color)
+            # print("Unknown color", color)
             return

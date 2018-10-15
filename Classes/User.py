@@ -67,8 +67,6 @@ class User:
 
         # обновляем жизни
         elif current_event.__class__ is Match3FailGame:
-            if previous_event is not Match3FailGame:
-                self.lost_life_datetime = current_event.datetime
             if current_event.lives:
                 self.lives = current_event.lives
 

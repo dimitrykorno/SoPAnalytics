@@ -1,11 +1,13 @@
 from report_api.Pattern import Pattern
 from Classes.Events import *
 
-class pattern_BuyDecoration(Pattern):
+
+class PatternBuyDecoration(Pattern):
     """
     Заготовленный шаблон для покупки декорации
     """
 
+    # noinspection PyDefaultArgument
     def __init__(self, completed_once=False, min_completions=0, max_completions=None,
                  pattern_parameters=[None], same_day_pattern=True, same_session_pattern=False):
         super().__init__(completed_once=completed_once,
@@ -25,11 +27,12 @@ class pattern_BuyDecoration(Pattern):
         Pattern.filename = "BuyDecoration"
 
 
-class pattern_BuyHealth(Pattern):
+class PatternBuyHealth(Pattern):
     """
     Заготовленный шаблон для покупки декорации
     """
 
+    # noinspection PyDefaultArgument
     def __init__(self, completed_once=False, min_completions=0, max_completions=None,
                  pattern_parameters=[None], same_day_pattern=True, same_session_pattern=False):
         super().__init__(completed_once=completed_once,
@@ -50,11 +53,12 @@ class pattern_BuyHealth(Pattern):
         Pattern.filename = "BuyHealth"
 
 
-class pattern_WinRow(Pattern):
+class PatternWinRow(Pattern):
     """
     Заготовленный шаблон для покупки декорации
     """
 
+    # noinspection PyDefaultArgument
     def __init__(self, completed_once=False, min_completions=0, max_completions=None,
                  pattern_parameters=[None], same_day_pattern=True, same_session_pattern=True):
         super().__init__(completed_once=completed_once,

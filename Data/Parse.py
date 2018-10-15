@@ -134,9 +134,10 @@ def parse_match3_event(parameters, datetime):
                 premium_coin = int(parameters[level_num][event_type]["premiumCoin"])
             else:
                 premium_coin = None
-            price = round(float(parameters[level_num][event_type]["AppPurchasePrice"]), 2) if "AppPurchasePrice" in \
-                                                                                              parameters[level_num][
-                                                                                                  event_type].keys() else None
+            if "AppPurchasePrice" in parameters[level_num][event_type].keys():
+                price = round(float(parameters[level_num][event_type]["AppPurchasePrice"]), 2)
+            else:
+                price = None
             return Match3BuyPremiumCoin(
                 level_num=level_num_corrected,
                 quest=parameters[level_num][event_type]["Quest"],
@@ -381,10 +382,10 @@ def parse_city_event(parameters, datetime):
             # косяки
             if quest_id in ("Take", "Сomplete"):
                 return
-            if parameters[event_type][quest_id]=="Сomplete":
-                action="Complete"
+            if parameters[event_type][quest_id] == "Сomplete":
+                action = "Complete"
             else:
-                action=parameters[event_type][quest_id]
+                action = parameters[event_type][quest_id]
             return CityEventsQuest(
                 quest_id=quest_id,
                 action=action,

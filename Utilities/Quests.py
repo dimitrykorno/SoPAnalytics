@@ -132,7 +132,7 @@ def get_last_loc_quest(level_or_quest):
 
 
 def get_completed_locquests(finished_levels):
-    list = []
+    result_list = []
     for loc in loc_quest_level.keys():
         for quest in loc_quest_level[loc].keys():
             passed = True
@@ -140,52 +140,49 @@ def get_completed_locquests(finished_levels):
                 if level not in finished_levels:
                     passed = False
             if passed:
-                list.append(loc + quest)
-    return list
+                result_list.append(loc + quest)
+    return result_list
 
 
 def get_levels_list(locquest=True, fail=False, tutorial=True, tutorial_order=original_tutorial_order, level=True):
-    print("tutor list",tutorial_order)
-    list = []
+    print("tutor list", tutorial_order)
+    result_list = []
     if tutorial:
         index = 0
         while "Tutorial" in tutorial_order[index]:
-            list.append(tutorial_order[index])
+            result_list.append(tutorial_order[index])
             index += 1
 
     for loc in loc_quest_level.keys():
         for quest in loc_quest_level[loc].keys():
             if locquest:
-                list.append("Start  " + loc + quest)
+                result_list.append("Start  " + loc + quest)
             if tutorial:
                 if "Take " + loc + quest in tutorial_order:
                     index = tutorial_order.index("Take " + loc + quest)
                     while index + 1 < len(tutorial_order) and "Tutorial" in tutorial_order[index + 1]:
-                        list.append(tutorial_order[index + 1])
+                        result_list.append(tutorial_order[index + 1])
                         index += 1
 
             for lvl in loc_quest_level[loc][quest]:
                 if level:
-                    list.append("Start  " + lvl)
+                    result_list.append("Start  " + lvl)
                 if fail:
-                    list.append("Fail   " + lvl)
+                    result_list.append("Fail   " + lvl)
                 if level:
-                    list.append("Finish " + lvl)
+                    result_list.append("Finish " + lvl)
 
             if locquest:
-                list.append("Finish " + loc + quest)
+                result_list.append("Finish " + loc + quest)
 
             if tutorial:
                 if "Complete " + loc + quest in tutorial_order:
                     index = tutorial_order.index("Complete " + loc + quest)
                     while index + 1 < len(tutorial_order) and "Tutorial" in tutorial_order[index + 1]:
-                        list.append(tutorial_order[index + 1])
+                        result_list.append(tutorial_order[index + 1])
                         index += 1
 
-
-
-
-    return list
+    return result_list
 
 
 def get_levels():
@@ -211,3 +208,13 @@ def get_level_names(start, quantity):
 
 def get_next_level(level_num):
     return str(int(level_num) + 1).rjust(4, '0')
+
+
+def get_next_locquest(locquest):
+    get_next = False
+    for loc in loc_quest_level.keys():
+        for quest in loc_quest_level[loc].keys():
+            if get_next:
+                return loc + quest
+            if loc + quest == locquest:
+                get_next = True

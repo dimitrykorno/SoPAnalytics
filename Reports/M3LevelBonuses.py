@@ -1,94 +1,119 @@
 from Utilities.Quests import *
-from Utilities.Utils import *
 import pandas as pd
 from Classes.Events import *
-from Classes.Report import Report
+from report_api.OS import OS
+from Data import Parse
+from Classes.User import User
+from report_api.Report import Report
+from datetime import datetime
+from report_api.Utilities.Utils import time_count
+
+app = "sop"
 
 
+# noinspection PyDefaultArgument,PyDefaultArgument
 @time_count
-def new_report(start=1, quantity=121, min_app_version="5.3",exact=True):
-    sql = """
-    SELECT ios_ifa,ios_ifv, event_name, event_json, event_datetime, app_version_name
-    FROM sop_events.events_ios
-    WHERE event_name = "Match3Events" 
-    order by ios_ifa,ios_ifv, event_datetime
-    """
+def new_report(os_list=["iOS"],
+               period_start=None,
+               period_end=None,
+               min_version=None,
+               max_version=None,
+               countries_list=[],
+               start=1,
+               quantity=121):
+    for os_str in os_list:
+        os = OS.get_os(os_str)
+        # БАЗА ДАННЫХ
+        Report.set_app_data(parser=Parse, user_class=User, event_class=Event,
+                            os=os_str, app=app, user_status_check=False)
 
-    report = Report(sql_events=sql, min_app_version=min_app_version, exact=exact)
+        Report.set_installs_data(additional_parameters=[],
+                                 period_start=period_start,
+                                 period_end=period_end,
+                                 min_version=min_version,
+                                 max_version=max_version,
+                                 countries_list=countries_list)
+        Report.set_events_data(additional_parameters=[],
+                               period_start=period_start,
+                               period_end=None,
+                               min_version=None,
+                               max_version=None,
+                               events_list=[("Match3Events",)])
 
-    levels = get_level_names(start, quantity)
-    df = pd.DataFrame(index=levels,
-                      columns=["Hammer", "First", "Second", "Third", "Buy steps"])
-    df = df.fillna(0)
+        levels = get_level_names(start, quantity)
+        df = pd.DataFrame(index=levels,
+                          columns=["Hammer", "First", "Second", "Third", "Buy steps"])
+        df = df.fillna(0)
 
-    # Параметры
-    user_hammer = 3
-    user_first = 3
-    user_second = 3
-    user_third = 3
+        # Параметры
+        user_hammer = 3
+        user_first = 3
+        user_second = 3
+        user_third = 3
 
-    while report.get_next_event():
+        while Report.get_next_event():
 
-        if report.is_new_user():
-            # Бесплатные бонусы
-            user_hammer = 3
-            user_first = 3
-            user_second = 3
-            user_third = 3
+            if Report.is_new_user():
+                # Бесплатные бонусы
+                user_hammer = 3
+                user_first = 3
+                user_second = 3
+                user_third = 3
 
-        current_level = report.current_event.level_num
-        if current_level in levels and current_level:
-            if report.current_event.__class__ is Match3StartGame:
+            current_level = Report.current_event.level_num
+            if current_level in levels and current_level:
+                if Report.current_event.__class__ is Match3StartGame:
 
-                # На 11 уровне дается первый бонус, он бесплатен при переигрывании
-                if current_level != "0011":
-                    if user_first <= 0:
-                        df.loc[current_level, "First"] += int(report.current_event.start_bonuses.first)
-                    else:
-                        user_first -= int(report.current_event.start_bonuses.first)
+                    # На 11 уровне дается первый бонус, он бесплатен при переигрывании
+                    if current_level != "0011":
+                        if user_first <= 0:
+                            df.loc[current_level, "First"] += int(Report.current_event.start_bonuses.first)
+                        else:
+                            user_first -= int(Report.current_event.start_bonuses.first)
 
-                # На 16 уровне дается второй бонус, он бесплатен при переигрывании
-                if current_level != "0016":
-                    if user_second <= 0:
-                        df.loc[current_level, "Second"] += int(report.current_event.start_bonuses.second)
-                    else:
-                        user_second -= int(report.current_event.start_bonuses.second)
+                    # На 16 уровне дается второй бонус, он бесплатен при переигрывании
+                    if current_level != "0016":
+                        if user_second <= 0:
+                            df.loc[current_level, "Second"] += int(Report.current_event.start_bonuses.second)
+                        else:
+                            user_second -= int(Report.current_event.start_bonuses.second)
 
-                # На 19 уровне дается третий бонус, он бесплатен при переигрывании
-                if current_level != "0019":
-                    if user_third <= 0:
-                        df.loc[current_level, "Third"] += int(report.current_event.start_bonuses.third)
-                    else:
-                        user_third -= int(report.current_event.start_bonuses.third)
+                    # На 19 уровне дается третий бонус, он бесплатен при переигрывании
+                    if current_level != "0019":
+                        if user_third <= 0:
+                            df.loc[current_level, "Third"] += int(Report.current_event.start_bonuses.third)
+                        else:
+                            user_third -= int(Report.current_event.start_bonuses.third)
 
-            elif report.current_event.__class__ is Match3CompleteTargets:
-                # На 7 уровне дается молоток, он бесплатен при переигрывании
-                if current_level != "0007":
-                    if user_hammer <= 0:
-                        df.loc[current_level, "Hammer"] += report.current_event.ingame_bonuses
-                    else:
-                        user_hammer -= report.current_event.ingame_bonuses
+                elif Report.current_event.__class__ is Match3CompleteTargets:
+                    # На 7 уровне дается молоток, он бесплатен при переигрывании
+                    if current_level != "0007":
+                        if user_hammer <= 0:
+                            df.loc[current_level, "Hammer"] += Report.current_event.ingame_bonuses
+                        else:
+                            user_hammer -= Report.current_event.ingame_bonuses
 
-                # При завершении уровней на обучение бонусу отбирается 1 бонус при его использовании
-                if report.previous_event.__class__ is Match3StartGame:
-                    if report.previous_event.level_num == "0011":
-                        user_first -= int(report.previous_event.start_bonuses.first)
-                    elif report.previous_event.level_num == "0016":
-                        user_second -= int(report.previous_event.start_bonuses.second)
-                    elif report.previous_event.level_num == "0019":
-                        user_third -= int(report.previous_event.start_bonuses.third)
-                    elif report.previous_event.level_num == "0007":
-                        user_hammer -= report.current_event.ingame_bonuses
+                    # При завершении уровней на обучение бонусу отбирается 1 бонус при его использовании
+                    if Report.previous_event.__class__ is Match3StartGame:
+                        if Report.previous_event.level_num == "0011":
+                            user_first -= int(Report.previous_event.start_bonuses.first)
+                        elif Report.previous_event.level_num == "0016":
+                            user_second -= int(Report.previous_event.start_bonuses.second)
+                        elif Report.previous_event.level_num == "0019":
+                            user_third -= int(Report.previous_event.start_bonuses.third)
+                        elif Report.previous_event.level_num == "0007":
+                            user_hammer -= Report.current_event.ingame_bonuses
 
-                if report.previous_event.__class__ is Match3FailGame:
-                    df.loc[current_level, "Buy steps"] += 1
+                    if Report.previous_event.__class__ is Match3FailGame:
+                        df.loc[current_level, "Buy steps"] += 1
 
-            # Докупка ходов
-            elif report.current_event.__class__ is Match3FailGame:
-                df.loc[current_level, "Buy steps"] += report.current_event.fail_count
+                # Докупка ходов
+                elif Report.current_event.__class__ is Match3FailGame:
+                    df.loc[current_level, "Buy steps"] += Report.current_event.fail_count
 
-    # Вывод
-    print(df.to_string())
-    writer = pd.ExcelWriter("Level spend coins " + str(start) + "-" + str(start + quantity - 1) + ".xlsx")
-    df.to_excel(excel_writer=writer)
-    writer.save()
+        # Вывод
+        print(df.to_string())
+        writer = pd.ExcelWriter(
+            "Results/Использование бонусов/Level spend coins " + str(start) + "-" + str(start + quantity - 1) + ".xlsx")
+        df.to_excel(excel_writer=writer)
+        writer.save()

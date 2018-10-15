@@ -92,16 +92,16 @@ def sigma(raw_data, normal=False):
     if avg == 0:
         return 0
     # print("avg diff:",avg)
-    S = 0
+    s = 0
     for x in data:
-        S += pow((x - avg), 2)
-    S = S / (len(data) - 1)
-    S = sqrt(S)
-    # print("sigma:", S)
+        s += pow((x - avg), 2)
+    s = s / (len(data) - 1)
+    s = sqrt(s)
+    # print("sigma:", s)
     if not normal:
-        S = abs(average_data - S)
-    # print("sigma:", S, "\n")
-    return S
+        s = abs(average_data - s)
+    # print("sigma:", s, "\n")
+    return s
 
 
 def outliers_iqr(data_list, where=None, max_outliers=True, min_outliers=False, multiplier=1.5, print_excl=True,
@@ -209,7 +209,7 @@ def week_of_month(dt):
 
 
 def draw_plot(x, y_dict, xtick_steps=1, xticks_move=0, x_ticks_labels=list(), title=None, folder="", show=False,
-              format="png"):
+              img_format="png"):
     """
     рисование графика, расситано на одновременное рисование множества графиков из словаря
     :param x: иксы
@@ -220,7 +220,7 @@ def draw_plot(x, y_dict, xtick_steps=1, xticks_move=0, x_ticks_labels=list(), ti
     :param title: название графика
     :param folder: папка с графиком
     :param show: печать графика
-    :param format: формат сохранения картинки
+    :param img_format: формат сохранения картинки
     :return:
     """
     plt.figure(figsize=(17, 8))
@@ -265,7 +265,7 @@ def draw_plot(x, y_dict, xtick_steps=1, xticks_move=0, x_ticks_labels=list(), ti
     plt.title(title)
     legend = ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), fancybox=True, shadow=True,
                        ncol=5)
-    plt.savefig(folder + "/" + title + "." + format, bbox_extra_artists=(legend,), bbox_inches='tight')
+    plt.savefig(folder + "/" + title + "." + img_format, bbox_extra_artists=(legend,), bbox_inches='tight')
     if show:
         plt.show()
     plt.close()
