@@ -1,9 +1,12 @@
 from Utilities.Tutorials import get_tutorial_name
 from report_api.Classes.Events import *
+
 indent = 20
 
 
 class Match3Event(Event):
+    __slots__ = 'level_num', 'session_id'
+
     def __init__(self, level_num, session_id, datetime):
         super().__init__(datetime)
         self.level_num = level_num
@@ -21,6 +24,8 @@ class Match3Event(Event):
 
 
 class Match3StartGame(Match3Event):
+    __slots__ = 'turn_count', 'lives', 'buy_bonuses_count', 'targets_list', 'start_bonuses'
+
     def __init__(self, level_num, session_id, turn_count, lives, buy_bonuses_count, targets_list, start_bonuses,
                  datetime):
         super().__init__(level_num, session_id, datetime)
@@ -45,6 +50,8 @@ class Match3StartGame(Match3Event):
 
 
 class Match3FinishGame(Match3Event):
+    __slots__ = 'turn_count', 'game_currency_count', 'targets_list'
+
     def __init__(self, level_num, session_id, turn_count, game_currency_count, targets_list, datetime):
         super().__init__(level_num, session_id, datetime)
         self.turn_count = turn_count
@@ -64,6 +71,8 @@ class Match3FinishGame(Match3Event):
 
 
 class Match3CompleteTargets(Match3Event):
+    __slots__ = 'turn_count', 'game_currency_count', 'buy_steps_count', 'targets_list', 'ingame_bonuses', 'elements_count'
+
     def __init__(self, level_num, session_id, turn_count, game_currency_count, buy_steps_count, ingame_bonuses,
                  elements_count, targets_list, datetime):
         super().__init__(level_num, session_id, datetime)
@@ -89,6 +98,8 @@ class Match3CompleteTargets(Match3Event):
 
 
 class Match3FailGame(Match3Event):
+    __slots__ = 'fail_count', 'turn_count', 'buy_steps_count', 'lives', 'ingame_bonuses', 'targets_list', 'elemtnts_list'
+
     def __init__(self, fail_count, level_num, session_id, turn_count, buy_steps_count, lives, ingame_bonuses,
                  elements_count, targets_list, datetime):
         super().__init__(level_num, session_id, datetime)
@@ -117,21 +128,9 @@ class Match3FailGame(Match3Event):
         return info
 
 
-class PurchaseEvent(Event):
-    def __init__(self, purchase, status, price, datetime):
-        super().__init__(datetime)
-
-        self.purchase = purchase
-        self.status = status
-        self.price = price
-
-    def to_string(self):
-        info = super().to_string()
-        info +=  ", Purchase: " + str(self.purchase) + ", Status: " + str(self.status)
-        return info
-
-
 class Match3BuyPremiumCoin(PurchaseEvent):
+    __slots__ = 'level_num', 'premium_coin', 'quest'
+
     def __init__(self, level_num, quest, app_purchase_sku, price, status, premium_coin, datetime):
         super().__init__(app_purchase_sku, status, price, datetime)
         self.level_num = level_num
@@ -146,6 +145,8 @@ class Match3BuyPremiumCoin(PurchaseEvent):
 
 
 class CityEventsBuyPremiumCoin(PurchaseEvent):
+    __slots__ = 'premium_coin', 'quest'
+
     def __init__(self, quest, app_purchase_sku, price, status, premium_coin, datetime):
         super().__init__(app_purchase_sku, status, price, datetime)
         self.premium_coin = premium_coin
@@ -157,6 +158,8 @@ class CityEventsBuyPremiumCoin(PurchaseEvent):
 
 
 class CityEventsBuyDecoration(Event):
+    __slots__ = 'game_coin', 'purchase', 'quest', 'status'
+
     def __init__(self, quest, purchase, status, game_coin, datetime):
         super().__init__(datetime)
         self.game_coin = game_coin
@@ -170,6 +173,8 @@ class CityEventsBuyDecoration(Event):
 
 
 class CityEventsStartGame(Event):
+    __slots__ = 'level_num', 'premiun_coin', 'game_coin', 'start_bonuses', 'ingame_bonuses'
+
     def __init__(self, level_num, premium_coin, game_coin, start_bonuses, ingame_bonuses, datetime):
         super().__init__(datetime)
         self.level_num = level_num
@@ -193,6 +198,8 @@ class CityEventsStartGame(Event):
 
 
 class CityEventsBuyHealth(Event):
+    __slots__ = 'quest', 'premium_coin'
+
     def __init__(self, quest, premium_coin, datetime):
         super().__init__(datetime)
         self.quest = quest
@@ -205,6 +212,8 @@ class CityEventsBuyHealth(Event):
 
 
 class CityEventsBuyDust(Event):
+    __slots__ = 'quest', 'premiun_coin', 'game_coin', 'purchase', 'status'
+
     def __init__(self, quest, purchase, status, premium_coin, game_coin, datetime):
         super().__init__(datetime)
         self.premium_coin = premium_coin
@@ -220,6 +229,8 @@ class CityEventsBuyDust(Event):
 
 
 class CityEventsUpdateBuilding(Event):
+    __slots__ = 'quest', 'building', 'level', 'premium_coin'
+
     def __init__(self, building, level, premium_coin, datetime, quest_id=""):
         super().__init__(datetime)
         self.quest = quest_id
@@ -234,6 +245,8 @@ class CityEventsUpdateBuilding(Event):
 
 
 class CityEventsInitGameState(Event):
+    __slots__ = 'premium_coin', 'game_coin'
+
     def __init__(self, premium_coin, game_coin, datetime):
         super().__init__(datetime)
         self.premium_coin = premium_coin
@@ -246,6 +259,8 @@ class CityEventsInitGameState(Event):
 
 
 class CityEventsQuest(Event):
+    __slots__ = 'action', 'quest'
+
     def __init__(self, action, quest_id, datetime):
         super().__init__(datetime)
         self.action = action
@@ -297,6 +312,7 @@ class CityEventsButton(Event):
     """
     Общий класс для однотипных кнопок: Store, Decoration, Leaderboard, Puzzle
     """
+    __slots__ = 'button', 'quest', 'action'
 
     def __init__(self, button, quest, action, datetime):
         super().__init__(datetime)
@@ -311,6 +327,8 @@ class CityEventsButton(Event):
 
 
 class CityEventsButtonPlay(CityEventsButton):
+    __slots__ = 'play_type'
+
     def __init__(self, button, quest, play_type, action, datetime):
         super().__init__(button, quest, action, datetime)
         self.play_type = play_type
@@ -323,6 +341,8 @@ class CityEventsButtonPlay(CityEventsButton):
 
 
 class CityEventsButtonHealth(CityEventsButton):
+    __slots__ = 'lives'
+
     def __init__(self, button, quest, action, lives, datetime):
         super().__init__(button, quest, action, datetime)
         self.lives = lives
@@ -334,6 +354,8 @@ class CityEventsButtonHealth(CityEventsButton):
 
 
 class CityEventsButtonDust(CityEventsButton):
+    __slots__ = 'game_coin'
+
     def __init__(self, button, quest, action, game_coin, datetime):
         super().__init__(button, quest, action, datetime)
         self.game_coin = game_coin
@@ -345,6 +367,8 @@ class CityEventsButtonDust(CityEventsButton):
 
 
 class CityEventsRestore(Event):
+    __slots__ = 'quest', 'object_name', 'game_coin'
+
     def __init__(self, object_name, datetime, quest_id="", game_coin=""):
         super().__init__(datetime)
         self.quest = quest_id
@@ -358,6 +382,8 @@ class CityEventsRestore(Event):
 
 
 class CityEventsRemove(Event):
+    __slots__ = 'quest', 'object_name', 'premium_coin'
+
     def __init__(self, object_name, datetime, quest_id, premium_coin):
         super().__init__(datetime)
         self.quest = quest_id
@@ -371,6 +397,8 @@ class CityEventsRemove(Event):
 
 
 class CityEventsBuyNoDustWindow(Event):
+    __slots__ = 'quest', 'game_coin', 'premium_coin', 'status'
+
     def __init__(self, game_coin, premium_coin, quest_id, status, datetime):
         super().__init__(datetime)
         self.game_coin = game_coin
@@ -380,6 +408,8 @@ class CityEventsBuyNoDustWindow(Event):
 
 
 class CityEventsMillDust(Event):
+    __slots__ = 'quest', 'garden', 'game_coin'
+
     def __init__(self, garden_id, datetime, quest_id, game_coin):
         super().__init__(datetime)
         self.quest = quest_id
@@ -394,6 +424,8 @@ class CityEventsMillDust(Event):
 
 
 class TutorialSteps(Event):
+    __slots__ = 'level_num', 'step_number'
+
     def __init__(self, level_num, step_number, datetime):
         super().__init__(datetime)
         self.level_num = level_num
@@ -406,6 +438,8 @@ class TutorialSteps(Event):
 
 
 class Tutorial(Event):
+    __slots__ = 'tutorial_code', 'status'
+
     def __init__(self, tutorial_code, status, datetime):
         super().__init__(datetime)
         self.tutorial_code = tutorial_code
