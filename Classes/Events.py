@@ -1,23 +1,6 @@
 from Utilities.Tutorials import get_tutorial_name
-
+from report_api.Classes.Events import *
 indent = 20
-
-
-class Event:
-    medium_time = []
-
-    def __init__(self, datetime):
-        self.datetime = datetime
-        pass
-
-    def print(self):
-        print(self.__dict__)
-
-    def to_string(self):
-        return str(self.__class__.__name__) + ": "
-
-    def to_short_string(self):
-        return self.to_string()
 
 
 class Match3Event(Event):
@@ -135,45 +118,51 @@ class Match3FailGame(Match3Event):
 
 
 class PurchaseEvent(Event):
-    def __init__(self, quest, purchase, status, price, datetime):
+    def __init__(self, purchase, status, price, datetime):
         super().__init__(datetime)
-        self.quest = quest
+
         self.purchase = purchase
         self.status = status
         self.price = price
 
     def to_string(self):
         info = super().to_string()
-        info += "Quest: " + str(self.quest) + ", Purchase: " + str(self.purchase) + ", Status: " + str(self.status)
+        info +=  ", Purchase: " + str(self.purchase) + ", Status: " + str(self.status)
         return info
 
 
 class Match3BuyPremiumCoin(PurchaseEvent):
     def __init__(self, level_num, quest, app_purchase_sku, price, status, premium_coin, datetime):
-        super().__init__(quest, app_purchase_sku, status, price, datetime)
+        super().__init__(app_purchase_sku, status, price, datetime)
         self.level_num = level_num
         self.premium_coin = premium_coin
+        self.quest = quest
 
     def to_string(self):
         info = super().to_string()
-        info += ", Level: " + str(self.level_num) + ", PremiumCoin: " + str(self.premium_coin)
+        info += ", Quest: " + self.quest + ", Level: " + str(self.level_num) + ", PremiumCoin: " + str(
+            self.premium_coin)
         return info
 
 
 class CityEventsBuyPremiumCoin(PurchaseEvent):
     def __init__(self, quest, app_purchase_sku, price, status, premium_coin, datetime):
-        super().__init__(quest, app_purchase_sku, status, price, datetime)
+        super().__init__(app_purchase_sku, status, price, datetime)
         self.premium_coin = premium_coin
+        self.quest = quest
 
     def to_string(self):
-        info = super().to_string() + ", PremiumCoin: " + str(self.premium_coin)
+        info = super().to_string() + ", Quest: " + self.quest + ", PremiumCoin: " + str(self.premium_coin)
         return info
 
 
-class CityEventsBuyDecoration(PurchaseEvent):
+class CityEventsBuyDecoration(Event):
     def __init__(self, quest, purchase, status, game_coin, datetime):
-        super().__init__(quest, purchase, status, None, datetime)
+        super().__init__(datetime)
         self.game_coin = game_coin
+        self.quest = quest
+        self.purchase = purchase
+        self.status = status
 
     def to_string(self):
         info = super().to_string() + ", GameCoin: " + str(self.game_coin)
@@ -193,7 +182,7 @@ class CityEventsStartGame(Event):
         info = super().to_string()
         info += "Level: " + str(
             self.level_num) + "\n" + " " * indent + "Bonuses: " + self.start_bonuses.to_string() + \
-            ", Ingame Bonuses: " + str(self.ingame_bonuses) + "\n" + " " * indent + "Premium coin: " + str(
+                ", Ingame Bonuses: " + str(self.ingame_bonuses) + "\n" + " " * indent + "Premium coin: " + str(
             self.premium_coin) + ", Game coin: " + str(self.game_coin)
         return info
 
@@ -215,11 +204,14 @@ class CityEventsBuyHealth(Event):
         return info
 
 
-class CityEventsBuyDust(PurchaseEvent):
+class CityEventsBuyDust(Event):
     def __init__(self, quest, purchase, status, premium_coin, game_coin, datetime):
-        super().__init__(quest, purchase, status, None, datetime)
+        super().__init__(datetime)
         self.premium_coin = premium_coin
         self.game_coin = game_coin
+        self.quest = quest
+        self.purchase = purchase
+        self.status = status
 
     def to_string(self):
         info = super().to_string()

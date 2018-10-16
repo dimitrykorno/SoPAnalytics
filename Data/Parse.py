@@ -15,6 +15,8 @@ from Utilities.Colors import *
 from Utilities.Super import *
 from Utilities.Targets import *
 from Utilities.Tutorials import tutorials
+from Utilities.Shop import get_price
+
 
 
 def parse_event(event_name, event_json, datetime):
@@ -137,7 +139,7 @@ def parse_match3_event(parameters, datetime):
             if "AppPurchasePrice" in parameters[level_num][event_type].keys():
                 price = round(float(parameters[level_num][event_type]["AppPurchasePrice"]), 2)
             else:
-                price = None
+                price = get_price(parameters[level_num][event_type]["AppPurchaseSKU"],money="dollar")
             return Match3BuyPremiumCoin(
                 level_num=level_num_corrected,
                 quest=parameters[level_num][event_type]["Quest"],

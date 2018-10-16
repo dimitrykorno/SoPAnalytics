@@ -1,5 +1,5 @@
 from report_api.Data.Data import get_data
-from Utilities.Utils import *
+from report_api.Utilities.Utils import time_count
 import matplotlib.pyplot as plt
 
 

@@ -1,6 +1,7 @@
 from report_api.Menu import menu
 from Reports import M3LevelsFunnel, M3DetailedLevel, GlobalFunnel, UsersSessions, M3LevelBonuses, LastEventHistogram, \
-    DetailedFunnel, LifetimeHistogram, ProgressHistogram, DustDynamics, AccumulativeROI, RetentionPatternHypothesis
+    DetailedFunnel, LifetimeHistogram, ProgressHistogram, DustDynamics, AccumulativeROI, RetentionPatternHypothesis,InAppSales
+
 
 reports = {
     "1. Отчёт по качеству уровней": M3LevelsFunnel.new_report,
@@ -14,7 +15,11 @@ reports = {
     "9. Гистограма прогресса": ProgressHistogram.new_report,
     "10.Динамика пыли": DustDynamics.new_report,
     "11.Накопительный ROI": AccumulativeROI.new_report,
-    "12.Гипотезы по ретеншену": RetentionPatternHypothesis.new_report
+    "12.Гипотезы по ретеншену": RetentionPatternHypothesis.new_report,
+    "13.Отчёт по продажам": InAppSales.new_report
 }
 
 menu(reports)
+
+
+

@@ -1,4 +1,4 @@
-from Utilities.Utils import time_count, outliers_iqr
+from report_api.Utilities.Utils import time_count, outliers_iqr
 import pandas as pd
 from Utilities.Quests import get_locquests_list, get_locquest, get_next_locquest
 from matplotlib import pyplot as plt
