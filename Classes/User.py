@@ -33,7 +33,8 @@ class User:
     def is_skipped(self):
         return self.skipped
 
-    def is_new_session(self, previous_event, current_event):
+    @staticmethod
+    def is_new_session( previous_event, current_event):
         if isinstance(current_event, CityEventsInitGameState):
             return True
         else:

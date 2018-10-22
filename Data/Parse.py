@@ -31,6 +31,7 @@ def parse_event(event_name, event_json, datetime):
     except Exception as er:
         print(er.args)
         print(event_name, event_json)
+
         return None
 
     try:
@@ -48,7 +49,7 @@ def parse_event(event_name, event_json, datetime):
 
     except Exception:
 
-        Report.Report.not_found.add("Error: " + event_name + "\nJson: " + event_json)
+        Report.Report.not_found.add("Error: " + event_name + " Json: " + event_json)
         # print(error.args)
         return
 
@@ -56,17 +57,17 @@ def parse_event(event_name, event_json, datetime):
 
 
 def parse_match3_event(parameters, datetime):
-    level_num = list(parameters.keys())[0]
+    level_num = list(parameters)[0]
     level_num_corrected = level_num
     if "X" in level_num:
         level_num_corrected = "9" + level_num[2:]
-    event_type = list(parameters[level_num].keys())[0]
+    event_type = list(parameters[level_num])[0]
 
     try:
         if event_type == "StartGame":
 
             # костыль, Lives появились в 5.3
-            if "Lives" in list(parameters[level_num][event_type].keys()):
+            if "Lives" in list(parameters[level_num][event_type]):
                 lives = int(parameters[level_num][event_type]["Lives"])
                 # print("start m3 lives", lives)
             else:
@@ -110,7 +111,7 @@ def parse_match3_event(parameters, datetime):
         elif "FailGame" in event_type:
 
             # костыль, Lives появились в 5.3
-            if "Lives" in list(parameters[level_num][event_type].keys()):
+            if "Lives" in list(parameters[level_num][event_type]):
                 lives = int(parameters[level_num][event_type]["Lives"])
                 # print("fail m3 lives", lives)
             else:
@@ -132,11 +133,11 @@ def parse_match3_event(parameters, datetime):
         elif event_type == "BuyPremiumCoinM3":
 
             # костыль
-            if "premiumCoin" in list(parameters[level_num][event_type].keys()):
+            if "premiumCoin" in list(parameters[level_num][event_type]):
                 premium_coin = int(parameters[level_num][event_type]["premiumCoin"])
             else:
                 premium_coin = None
-            if "AppPurchasePrice" in parameters[level_num][event_type].keys():
+            if "AppPurchasePrice" in parameters[level_num][event_type]:
                 price = round(float(parameters[level_num][event_type]["AppPurchasePrice"]), 2)
             else:
                 price = get_price(parameters[level_num][event_type]["AppPurchaseSKU"],money="dollar")
@@ -231,12 +232,12 @@ def get_currency_count(params):
 
 
 def parse_city_event(parameters, datetime):
-    event_type = list(parameters.keys())[0]
+    event_type = list(parameters)[0]
 
     try:
         if event_type == "StartGame":
 
-            level_num = list(parameters[event_type].keys())[0]
+            level_num = list(parameters[event_type])[0]
             level_num_corrected = level_num
             if "X" in level_num:
                 level_num_corrected = "9" + level_num[2:]
@@ -252,13 +253,13 @@ def parse_city_event(parameters, datetime):
 
         elif event_type == "BuyPremiumCoin":
             # костыль
-            if "premiumCoin" in list(parameters[event_type].keys()):
+            if "premiumCoin" in list(parameters[event_type]):
                 premium_coin = int(parameters[event_type]["premiumCoin"])
             else:
                 premium_coin = None
             price = round(float(parameters[event_type]["AppPurchasePrice"]), 2) if "AppPurchasePrice" in \
                                                                                    parameters[
-                                                                                       event_type].keys() else None
+                                                                                       event_type] else None
             return CityEventsBuyPremiumCoin(
                 quest=parameters[event_type]["Quest"],
                 app_purchase_sku=parameters[event_type]["AppPurchaseSKU"],
@@ -270,7 +271,7 @@ def parse_city_event(parameters, datetime):
 
         elif event_type == "BuyDecoration":
             # костыль
-            if "gameCoin" in list(parameters[event_type].keys()):
+            if "gameCoin" in list(parameters[event_type]):
                 game_coin = int(parameters[event_type]["gameCoin"])
                 # print("Buy decor dust", game_coin)
             else:
@@ -285,7 +286,7 @@ def parse_city_event(parameters, datetime):
 
         elif event_type == "BuyHealth":
             # костыль
-            if "premiumCoin" in list(parameters[event_type].keys()):
+            if "premiumCoin" in list(parameters[event_type]):
                 premium_coin = int(parameters[event_type]["premiumCoin"])
                 # print("BuyHealth premium coin",premium_coin)
             else:
@@ -308,12 +309,12 @@ def parse_city_event(parameters, datetime):
             )
 
         elif event_type == "UpdateBuilding":
-            building = [x for x in list(parameters[event_type].keys()) if x != "premiumCoin"][0]
+            building = [x for x in list(parameters[event_type]) if x != "premiumCoin"][0]
             # костыль
             premium_coin = int(parameters[event_type]["premiumCoin"]) if "premiumCoin" in list(
-                parameters[event_type].keys()) else None
+                parameters[event_type]) else None
             quest_id = parameters[event_type]["Quest"] if "Quest" in list(
-                parameters[event_type].keys()) else None
+                parameters[event_type]) else None
 
             return CityEventsUpdateBuilding(
                 building=building,
@@ -332,11 +333,11 @@ def parse_city_event(parameters, datetime):
             )
 
         elif event_type == "Button":
-            button_type = list(parameters[event_type].keys())[0]
-            quest_id = list(parameters[event_type][button_type].keys())[0]
+            button_type = list(parameters[event_type])[0]
+            quest_id = list(parameters[event_type][button_type])[0]
             if button_type == "Play":
                 # просто игра или начало квеста
-                play_type = list(parameters[event_type][button_type][quest_id].keys())[0]
+                play_type = list(parameters[event_type][button_type][quest_id])[0]
                 return CityEventsButtonPlay(
                     button=button_type,
                     quest=quest_id,
@@ -346,7 +347,7 @@ def parse_city_event(parameters, datetime):
                 )
             elif button_type == "Health":
                 # print("Health")
-                quest = [x for x in list(parameters[event_type][button_type].keys()) if x != "Lives"][0]
+                quest = [x for x in list(parameters[event_type][button_type]) if x != "Lives"][0]
                 return CityEventsButtonHealth(
                     button=button_type,
                     quest=quest,
@@ -357,7 +358,7 @@ def parse_city_event(parameters, datetime):
                 )
             elif button_type == "Dust":
                 # print("Dust")
-                quest = [x for x in list(parameters[event_type][button_type].keys()) if x != "gameCoin"][0]
+                quest = [x for x in list(parameters[event_type][button_type]) if x != "gameCoin"][0]
                 return CityEventsButtonDust(
                     button=button_type,
                     quest=quest,
@@ -380,7 +381,7 @@ def parse_city_event(parameters, datetime):
                 datetime=datetime
             )
         elif event_type == "Quest":
-            quest_id = list(parameters[event_type].keys())[0]
+            quest_id = list(parameters[event_type])[0]
             # косяки
             if quest_id in ("Take", "Сomplete"):
                 return
@@ -397,11 +398,11 @@ def parse_city_event(parameters, datetime):
             if isinstance(parameters[event_type], str):
                 return None
             game_coin = int(parameters[event_type]["gameCoin"]) if "gameCoin" in list(
-                parameters[event_type].keys()) else None
+                parameters[event_type]) else None
             quest_id = parameters[event_type]["Quest"] if "Quest" in list(
-                parameters[event_type].keys()) else None
+                parameters[event_type]) else None
             obj = parameters[event_type]["Object"] if "Object" in list(
-                parameters[event_type].keys()) else parameters[event_type]
+                parameters[event_type]) else parameters[event_type]
             return CityEventsRestore(
                 object_name=obj,
                 datetime=datetime,
@@ -409,7 +410,7 @@ def parse_city_event(parameters, datetime):
                 quest_id=quest_id
             )
         elif event_type == "Remove":
-            # if "premiumCoin" not in parameters[event_type].keys():
+            # if "premiumCoin" not in parameters[event_type]:
             #    return None
             return CityEventsRemove(
                 object_name=parameters[event_type],
@@ -432,7 +433,7 @@ def parse_city_event(parameters, datetime):
 
 
 def parse_tutorial_steps(parameters, datetime):
-    level_num = list(parameters.keys())[0]
+    level_num = list(parameters)[0]
     return TutorialSteps(
         level_num=level_num,
         step_number=parameters[level_num],
@@ -441,8 +442,8 @@ def parse_tutorial_steps(parameters, datetime):
 
 
 def parse_tutorial_complete(parameters, datetime):
-    tutorial_code = list(parameters.keys())[0]
-    if tutorial_code not in tutorials.keys():
+    tutorial_code = list(parameters)[0]
+    if tutorial_code not in tutorials:
         print("Event parse: Unknown tutorial:", tutorial_code)
     return Tutorial(
         tutorial_code=tutorial_code,
