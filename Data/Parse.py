@@ -6,7 +6,7 @@ except ImportError:
     import json
 
 import re
-
+import traceback
 from report_api import Report
 
 from Classes.Events import *
@@ -47,9 +47,10 @@ def parse_event(event_name, event_json, datetime):
         else:
             raise ValueError("Event parse: Unknown event name:", event_name, datetime)
 
-    except Exception:
+    except Exception as er:
 
-        Report.Report.not_found.add("Error: " + event_name + " Json: " + event_json)
+        Report.Report.not_found.add(er.args+" Error: " + event_name + " Json: " + event_json)
+        Report.Report.not_found.add(traceback.extract_stack())
         # print(error.args)
         return
 
@@ -69,7 +70,6 @@ def parse_match3_event(parameters, datetime):
             # костыль, Lives появились в 5.3
             if "Lives" in list(parameters[level_num][event_type]):
                 lives = int(parameters[level_num][event_type]["Lives"])
-                # print("start m3 lives", lives)
             else:
                 lives = None
 
@@ -113,7 +113,6 @@ def parse_match3_event(parameters, datetime):
             # костыль, Lives появились в 5.3
             if "Lives" in list(parameters[level_num][event_type]):
                 lives = int(parameters[level_num][event_type]["Lives"])
-                # print("fail m3 lives", lives)
             else:
                 lives = None
 

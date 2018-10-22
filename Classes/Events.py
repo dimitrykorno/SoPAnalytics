@@ -98,7 +98,7 @@ class Match3CompleteTargets(Match3Event):
 
 
 class Match3FailGame(Match3Event):
-    __slots__ = 'fail_count', 'turn_count', 'buy_steps_count', 'lives', 'ingame_bonuses', 'targets_list', 'elemtnts_list'
+    __slots__ = 'fail_count', 'turn_count', 'buy_steps_count', 'lives', 'ingame_bonuses', 'targets_list', 'elements_count'
 
     def __init__(self, fail_count, level_num, session_id, turn_count, buy_steps_count, lives, ingame_bonuses,
                  elements_count, targets_list, datetime):
@@ -173,7 +173,7 @@ class CityEventsBuyDecoration(Event):
 
 
 class CityEventsStartGame(Event):
-    __slots__ = 'level_num', 'premiun_coin', 'game_coin', 'start_bonuses', 'ingame_bonuses'
+    __slots__ = 'level_num', 'premium_coin', 'game_coin', 'start_bonuses', 'ingame_bonuses'
 
     def __init__(self, level_num, premium_coin, game_coin, start_bonuses, ingame_bonuses, datetime):
         super().__init__(datetime)

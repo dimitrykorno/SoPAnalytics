@@ -33,7 +33,8 @@ def new_report(os_list=["iOS"],
             days_left = 3
         else:
             days_left = 999
-
+    if not days_max:
+        days_max = 365
     days_max = int(days_max)
 
     for os_str in os_list:
@@ -123,7 +124,7 @@ def new_report(os_list=["iOS"],
         def purchases():
             if Report.current_event.__class__ is Match3BuyPremiumCoin and Report.current_event.status == "Success":
                 levels_data[current_level]["Purchases"] += 1
-                levels_data[current_level]["Purchases Sum"] += get_price(Report.current_event.purchase, money="rub")
+                levels_data[current_level]["Purchases Sum"] += get_price(Report.current_event.obj_name, money="rub")
 
                 # Считаем первые покупки игроков
                 if first_purchase:
@@ -175,11 +176,14 @@ def new_report(os_list=["iOS"],
 
             # Проверка на отвал
             # При отсутствии максимального дня в игре (для среза выборки) берется макс дата из базы данных.
-            if (not days_max and Report.get_timediff(user.last_enter.date(), datetime.now().date(),
-                                                     measure="day") >= days_left) or \
-                    (days_max and Report.get_timediff(user.last_enter.date(),
-                                                      user.install_date + timedelta(
-                                                          days=days_max), measure="day") > days_left):
+            #print(days_max, user.install_date + timedelta(days=days_max) > datetime.now().date(),Report.get_timediff(user.last_enter.date(), datetime.now().date(), measure="day"),days_left)
+            if ((not days_max or user.install_date + timedelta(days=days_max) > datetime.now().date()) and
+                        Report.get_timediff(user.last_enter.date(), datetime.now().date(), measure="day") >= days_left) \
+                    or \
+                    (days_max and user.last_enter.date()> user.install_date + timedelta(days=days_max) and
+                             Report.get_timediff(user.last_enter.date(), user.install_date + timedelta(
+                        days=days_max), measure="day") > days_left):
+                #print("got")
                 if started_levels:
                     for level3 in list(started_levels - finished_levels):
                         levels_data[level3][left_par] += 1
@@ -209,7 +213,8 @@ def new_report(os_list=["iOS"],
                     user_clean_attempts = dict.fromkeys(levels, 0)
                     first_purchase = True
 
-                    if not Report.is_new_user() and Report.get_time_since_install(user="current") > days_max:
+                    if days_max and not Report.is_new_user() and Report.get_time_since_install(
+                            user="current") > days_max:
                         Report.skip_current_user()
                         continue
                 start_finish()
@@ -234,6 +239,7 @@ def new_report(os_list=["iOS"],
             df.at[level, "Clean Start"] = levels_data[level]["Clean Start"]
             df.at[level, "Clean Finish"] = levels_data[level]["Clean Finish"]
             df.at[level, "Difficulty"] = levels_data[level]["Difficulty"]
+            df.at[level, left_par]=levels_data[level][left_par]
 
         # Финальные рассчеты
         df["Start Convertion"] = round(df["Started"] * 100 / Report.total_users, 1)
