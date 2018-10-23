@@ -119,7 +119,7 @@ def new_report(os_list=["iOS"],
                 funnel_data[last_game_point]["Last event loss"] += 1
 
                 # РАСПРЕДЕЛЕНИЕ МОНЕТ УШЕДШИХ
-                if last_game_point not in loss_premium_coins.keys():
+                if last_game_point not in loss_premium_coins:
                     loss_premium_coins[last_game_point] = []
                 loss_premium_coins[last_game_point].append(Report.previous_user.premium_coin)
                 # ОСТАЛОСЬ: ПОСЧИТАТЬ СРЕДНЕЕ И +- СИГМЫ
@@ -217,7 +217,7 @@ def new_report(os_list=["iOS"],
 
             if df.at[level, "Last event loss"]:
                 df.loc[level, "loss %"] = str(round(df.at[level, "Last event loss"] * 100 / sum_loss, 1)) + "%"
-            if level in loss_premium_coins.keys():
+            if level in loss_premium_coins:
                 df.loc[level, "Coins"] = str(
                     int((sum(loss_premium_coins[level]) / len(loss_premium_coins[level])))) + " +-" + str(
                     int(sigma(loss_premium_coins[level])))

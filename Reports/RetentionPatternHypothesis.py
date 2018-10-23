@@ -237,8 +237,8 @@ def new_report(patt="ВНИМАНИЕ! ЗАДАЙТЕ ПАТТЕРНЫ ВРУЧ�
         df = pd.DataFrame(index=[],
                           columns=parameters)
 
-        for retention_period in pattern_analysis.keys():
-            for pattern in pattern_analysis[retention_period].keys():
+        for retention_period in pattern_analysis:
+            for pattern in pattern_analysis[retention_period]:
                 if pattern_analysis[retention_period][pattern]["Users"] > 0:
                     for i in range(0, days_since_install + 1):
                         pattern_analysis[retention_period][pattern][str(i) + "d"] = str(round(

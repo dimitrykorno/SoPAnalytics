@@ -55,11 +55,11 @@ def levels_monetization(start=1,
             money = Report.current_event.purchase[:-4] + " money"
             price = Report.current_event.price
 
-            if country not in countries.keys():
+            if country not in countries:
                 countries[country] = {}
 
             if start <= int(level) <= (start + quantity - 1):
-                if level not in countries[country].keys():
+                if level not in countries[country]:
                     countries[country][level] = dict.fromkeys(parameters, 0)
                 countries[country][level]["Sum"] += price
                 countries[country][level][quant] += 1

@@ -43,7 +43,7 @@ def new_report(os_list=["iOS"],
                 # Анализируется последние событие каждого игрока
                 last_event_class = Report.previous_event.__class__.__name__
                 # Оно добавляется в список последних событий
-                if last_event_class not in events.keys():
+                if last_event_class not in events:
                     events[last_event_class] = 0
                 events[last_event_class] += 1
 

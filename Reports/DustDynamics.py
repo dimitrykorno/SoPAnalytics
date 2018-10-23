@@ -185,7 +185,7 @@ def new_report(os_list=["iOS"],
                                 user_spends_dust = True
                             user_spent_on_quest[buy_decor_quest] += spent
 
-                            if purchase not in quests[buy_decor_quest]["Популярные объекты"].keys():
+                            if purchase not in quests[buy_decor_quest]["Популярные объекты"]:
                                 quests[buy_decor_quest]["Популярные объекты"][purchase] = 0
                             quant = 1
                             if purchase == "road":
@@ -211,7 +211,7 @@ def new_report(os_list=["iOS"],
                                 Report.current_app_version == "6.0" and not buy_decor):'''
 
                 user_spends_dust = True
-                if "Restore" not in quests[current_quest]["Популярные объекты"].keys():
+                if "Restore" not in quests[current_quest]["Популярные объекты"]:
                     quests[current_quest]["Популярные объекты"]["Restore"] = 0
                 quests[current_quest]["Популярные объекты"]["Restore"] += 1
                 user_restore_on_quest[current_quest] = 1
@@ -228,7 +228,7 @@ def new_report(os_list=["iOS"],
         flush_user_data()
 
         # Перенос данных в таблицу
-        for quest in quests.keys():
+        for quest in quests:
             if quest == "loc02q10":
                 print(quest, quests[quest]["Средняя пыль на руках (плат)"])
             if quest == "loc02q11":
@@ -249,11 +249,11 @@ def new_report(os_list=["iOS"],
             top_objects = ""
             sorted_list = list(sorted(quests[quest]["Популярные объекты"].items(), reverse=True, key=lambda x: x[1]))
 
-            if len(quests[quest]["Популярные объекты"].keys()) > 0:
+            if len(quests[quest]["Популярные объекты"]) > 0:
                 for index, (purchase, p_count) in enumerate(sorted_list):
                     if index < 5:
                         top_objects += purchase + ": " + str(p_count)
-                    if index < min(4, len(quests[quest]["Популярные объекты"].keys()) - 1):
+                    if index < min(4, len(quests[quest]["Популярные объекты"]) - 1):
                         top_objects += ", "
             quests[quest]["Популярные объекты"] = top_objects
 
