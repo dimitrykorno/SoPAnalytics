@@ -104,37 +104,14 @@ original_tutorial_order = ["Take loc00q01", "Complete loc00q01", "Start  Tutoria
                            "Take loc01q14", "Complete loc01q14", "Start  Tutorial09", "Finish Tutorial09"]
 
 
-def get_locquest(level_num):
-    for loc in loc_quest_level.keys():
-        for quest in loc_quest_level[loc].keys():
-            if level_num in loc_quest_level[loc][quest]:
-                return loc + quest
-    print("Уровня нет в списке:", level_num)
 
 
-def get_last_loc_quest(level_or_quest):
-    """
-    Возвращает номер последнего квеста.
-    Если передан номер уровня - номер текущего квеста.
-    Если передан номер квеста - номер предыдущего квеста.
-    :param level_or_quest: номер уровня или квеста
-    :return: номер последнего квеста
-    """
-    previous_quest = "loc00q00"
-    for loc in loc_quest_level.keys():
-        for quest in loc_quest_level[loc].keys():
-            if level_or_quest == loc + quest:
-                return previous_quest
-            for level in loc_quest_level[loc][quest]:
-                if level == level_or_quest:
-                    return loc + quest
-            previous_quest = loc + quest
 
 
 def get_completed_locquests(finished_levels):
     result_list = []
-    for loc in loc_quest_level.keys():
-        for quest in loc_quest_level[loc].keys():
+    for loc in loc_quest_level:
+        for quest in loc_quest_level[loc]:
             passed = True
             for level in loc_quest_level[loc][quest]:
                 if level not in finished_levels:
@@ -144,7 +121,7 @@ def get_completed_locquests(finished_levels):
     return result_list
 
 
-def get_levels_list(locquest=True, fail=False, tutorial=True, tutorial_order=original_tutorial_order, level=True):
+def get_detailed_levels_list(locquest=True, fail=False, tutorial=True, tutorial_order=original_tutorial_order, level=True):
     print("tutor list", tutorial_order)
     result_list = []
     if tutorial:
@@ -153,8 +130,8 @@ def get_levels_list(locquest=True, fail=False, tutorial=True, tutorial_order=ori
             result_list.append(tutorial_order[index])
             index += 1
 
-    for loc in loc_quest_level.keys():
-        for quest in loc_quest_level[loc].keys():
+    for loc in loc_quest_level:
+        for quest in loc_quest_level[loc]:
             if locquest:
                 result_list.append("Start  " + loc + quest)
             if tutorial:
@@ -185,19 +162,20 @@ def get_levels_list(locquest=True, fail=False, tutorial=True, tutorial_order=ori
     return result_list
 
 
-def get_levels():
+def get_levels(locquest=None):
     result_list = []
-    for loc in loc_quest_level.keys():
-        for quest in loc_quest_level[loc].keys():
-            for level in loc_quest_level[loc][quest]:
-                result_list.append(level)
+    for loc in loc_quest_level:
+        for quest in loc_quest_level[loc]:
+            if not locquest or locquest==loc+quest:
+                for level in loc_quest_level[loc][quest]:
+                    result_list.append(level)
     return result_list
 
 
 def get_locquests_list():
     result_list = []
-    for loc in loc_quest_level.keys():
-        for quest in loc_quest_level[loc].keys():
+    for loc in loc_quest_level:
+        for quest in loc_quest_level[loc]:
             result_list.append(loc + quest)
     return result_list
 
@@ -209,12 +187,44 @@ def get_level_names(start, quantity):
 def get_next_level(level_num):
     return str(int(level_num) + 1).rjust(4, '0')
 
-
-def get_next_locquest(locquest):
-    get_next = False
+def get_locquest(level_num):
     for loc in loc_quest_level.keys():
-        for quest in loc_quest_level[loc].keys():
+        for quest in loc_quest_level[loc]:
+            if level_num in loc_quest_level[loc][quest]:
+                return loc + quest
+    print("Уровня нет в списке:", level_num)
+
+def get_last_locquest(level_or_quest):
+    """
+    Возвращает номер последнего квеста.
+    Если передан номер уровня - номер текущего квеста.
+    Если передан номер квеста - номер предыдущего квеста.
+    :param level_or_quest: номер уровня или квеста
+    :return: номер последнего квеста
+    """
+    previous_quest = "loc00q00"
+    for loc in loc_quest_level:
+        for quest in loc_quest_level[loc]:
+            if level_or_quest == loc + quest:
+                return previous_quest
+            for level in loc_quest_level[loc][quest]:
+                if level == level_or_quest:
+                    return loc + quest
+            previous_quest = loc + quest
+
+
+def get_next_locquest(level_or_quest):
+    """
+       Возвращает номер следующего квеста.
+       Если передан номер уровня - номер текущего квеста.
+       Если передан номер квеста - номер предыдущего квеста.
+       :param level_or_quest: номер уровня или квеста
+       :return: номер последнего квеста
+       """
+    get_next = False
+    for loc in loc_quest_level:
+        for quest in loc_quest_level[loc]:
             if get_next:
                 return loc + quest
-            if loc + quest == locquest:
+            if loc + quest == level_or_quest or level_or_quest in loc_quest_level[loc][quest]:
                 get_next = True
