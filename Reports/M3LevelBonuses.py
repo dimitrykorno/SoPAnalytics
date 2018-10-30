@@ -37,9 +37,14 @@ def new_report(os_list=["iOS"],
                                max_version=None,
                                events_list=[("Match3Events",)])
 
+        hammer_price=63
+        first_bonus_price=43
+        second_bonus_price=53
+        third_bonus_price=63
+        steps_price=90
         levels = get_level_names(start, quantity)
         df = pd.DataFrame(index=levels,
-                          columns=["Hammer", "First", "Second", "Third", "Buy steps"])
+                          columns=["Hammer", "First", "Second", "Third", "Buy steps","Spent"])
         df = df.fillna(0)
 
         # Параметры
@@ -64,21 +69,21 @@ def new_report(os_list=["iOS"],
                     # На 11 уровне дается первый бонус, он бесплатен при переигрывании
                     if current_level != "0011":
                         if user_first <= 0:
-                            df.loc[current_level, "First"] += int(Report.current_event.start_bonuses.first)
+                            df.at[current_level, "First"] += int(Report.current_event.start_bonuses.first)
                         else:
                             user_first -= int(Report.current_event.start_bonuses.first)
 
                     # На 16 уровне дается второй бонус, он бесплатен при переигрывании
                     if current_level != "0016":
                         if user_second <= 0:
-                            df.loc[current_level, "Second"] += int(Report.current_event.start_bonuses.second)
+                            df.at[current_level, "Second"] += int(Report.current_event.start_bonuses.second)
                         else:
                             user_second -= int(Report.current_event.start_bonuses.second)
 
                     # На 19 уровне дается третий бонус, он бесплатен при переигрывании
                     if current_level != "0019":
                         if user_third <= 0:
-                            df.loc[current_level, "Third"] += int(Report.current_event.start_bonuses.third)
+                            df.at[current_level, "Third"] += int(Report.current_event.start_bonuses.third)
                         else:
                             user_third -= int(Report.current_event.start_bonuses.third)
 
@@ -86,7 +91,7 @@ def new_report(os_list=["iOS"],
                     # На 7 уровне дается молоток, он бесплатен при переигрывании
                     if current_level != "0007":
                         if user_hammer <= 0:
-                            df.loc[current_level, "Hammer"] += Report.current_event.ingame_bonuses
+                            df.at[current_level, "Hammer"] += Report.current_event.ingame_bonuses
                         else:
                             user_hammer -= Report.current_event.ingame_bonuses
 
@@ -102,12 +107,13 @@ def new_report(os_list=["iOS"],
                             user_hammer -= Report.current_event.ingame_bonuses
 
                     if Report.previous_event.__class__ is Match3FailGame:
-                        df.loc[current_level, "Buy steps"] += 1
+                        df.at[current_level, "Buy steps"] += 1
 
                 # Докупка ходов
                 elif Report.current_event.__class__ is Match3FailGame:
-                    df.loc[current_level, "Buy steps"] += Report.current_event.fail_count
-
+                    df.at[current_level, "Buy steps"] += Report.current_event.fail_count
+        for level in levels:
+            df.at[level,"Spent"]=df.at[level,"Hammer"]*hammer_price+df.at[level,"First"]*first_bonus_price+df.at[level,"Second"]*second_bonus_price+df.at[level,"Third"]*third_bonus_price+df.at[level,"Buy steps"]*steps_price
         # Вывод
         print(df.to_string())
         writer = pd.ExcelWriter(
