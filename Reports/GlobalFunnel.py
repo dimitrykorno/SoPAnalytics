@@ -57,7 +57,7 @@ def new_report(os_list=["iOS"],
 
         parameters = ["Retention", "Retention %", "Quest loss", "Level loss",  # "Loss",
                       "Last event loss", "loss %", "FinishGame", "Coins"]
-        levels_list = get_levels_list(fail=True)
+        levels_list = get_detailed_levels_list(fail=True)
 
         opened_game = 1
         started_levels = set()
@@ -182,7 +182,7 @@ def new_report(os_list=["iOS"],
 
         print(levels_list)
         print(real_tutorial_order)
-        levels_list = get_levels_list(fail=True, tutorial_order=real_tutorial_order)
+        levels_list = get_detailed_levels_list(fail=True, tutorial_order=real_tutorial_order)
         print(levels_list)
         df = pd.DataFrame(index=levels_list,
                           columns=parameters)

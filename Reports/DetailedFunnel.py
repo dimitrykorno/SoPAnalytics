@@ -1,5 +1,5 @@
 import pandas as pd
-from Utilities.Quests import get_last_loc_quest, loc_quest_level
+from Utilities.Quests import get_last_locquest, loc_quest_level
 import itertools
 from Classes.Events import *
 from Data import Parse
@@ -55,7 +55,7 @@ def new_report(game_point="0030",
 
         # ПАРАМЕТРЫ
 
-        previous_quest = get_last_loc_quest(game_point)
+        previous_quest = get_last_locquest(game_point)
         loc = previous_quest[:5]
         quest = previous_quest[5:]
 
