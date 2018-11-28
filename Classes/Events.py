@@ -26,8 +26,8 @@ class Match3Event(Event):
 class Match3StartGame(Match3Event):
     __slots__ = 'turn_count', 'lives', 'buy_bonuses_count', 'targets_list', 'start_bonuses'
 
-    def __init__(self, level_num, session_id, turn_count, lives, buy_bonuses_count, targets_list, start_bonuses,
-                 datetime):
+    def __init__(self, level_num, session_id="", turn_count=0, lives=0, buy_bonuses_count=0, targets_list=[], start_bonuses=[],
+                 datetime=None):
         super().__init__(level_num, session_id, datetime)
         self.turn_count = turn_count
         self.lives = lives
@@ -168,7 +168,7 @@ class CityEventsBuyDecoration(Event):
         self.status = status
 
     def to_string(self):
-        info = super().to_string() + ", GameCoin: " + str(self.game_coin)
+        info = super().to_string() +self.purchase + ", GameCoin: " + str(self.game_coin)
         return info
 
 
@@ -212,7 +212,7 @@ class CityEventsBuyHealth(Event):
 
 
 class CityEventsBuyDust(Event):
-    __slots__ = 'quest', 'premiun_coin', 'game_coin', 'purchase', 'status'
+    __slots__ = 'quest', 'premium_coin', 'game_coin', 'purchase', 'status'
 
     def __init__(self, quest, purchase, status, premium_coin, game_coin, datetime):
         super().__init__(datetime)
