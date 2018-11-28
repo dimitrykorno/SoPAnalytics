@@ -13,17 +13,18 @@ class Colors(Enum):
 
     @staticmethod
     def get_color(color):
-        if color == "Color6_Blue":
+        color=color.lower()
+        if color == "Color6_Blue".lower():
             return Colors.Blue
-        elif color == "Color6_Red":
+        elif color == "Color6_Red".lower():
             return Colors.Red
-        elif color == "Color6_Yellow":
+        elif color == "Color6_Yellow".lower():
             return Colors.Yellow
-        elif color == "Color6_Green":
+        elif color == "Color6_Green".lower():
             return Colors.Green
-        elif color == "Color6_Black":
+        elif color == "Color6_Black".lower():
             return Colors.Black
-        elif color == "Color6_White":
+        elif color == "Color6_White".lower():
             return Colors.White
         else:
             # print("Unknown color", color)

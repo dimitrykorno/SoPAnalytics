@@ -19,23 +19,24 @@ class Supers(Enum):
 
     @staticmethod
     def get_super(super_token):
-        if super_token == "Super_SmallLightning_h":
+        super_token=super_token.lower()
+        if super_token == "Super_SmallLightning_h".lower():
             return Supers.SmallLightning_h
-        elif super_token == "Super_SmallLightning_v":
+        elif super_token == "Super_SmallLightning_v".lower():
             return Supers.SmallLightning_v
-        elif super_token == "Super_FireSpark":
+        elif super_token == "Super_FireSpark".lower():
             return Supers.FireSpark
-        elif super_token == "Super_FireRing":
+        elif super_token == "Super_FireRing".lower():
             return Supers.FireRing
-        elif super_token == "Super_BigLightning_h":
+        elif super_token == "Super_BigLightning_h".lower():
             return Supers.BigLightning_h
-        elif super_token == "Super_BigLightning_v":
+        elif super_token == "Super_BigLightning_v".lower():
             return Supers.BigLightning_v
-        elif super_token == "Super_SphereOfFire":
+        elif super_token == "Super_SphereOfFire".lower():
             return Supers.SphereOfFire
-        elif super_token == "Super_TwoStarBonus":
+        elif super_token == "Super_TwoStarBonus".lower():
             return Supers.TwoStarBonus
-        elif super_token == "StarBonus":
+        elif super_token == "StarBonus".lower():
             return Supers.StarBonus
         else:
             # print("Unknown super token", super_token)

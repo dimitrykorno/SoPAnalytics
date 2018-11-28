@@ -81,6 +81,36 @@ loc_quest_level = {
               "q28": ["0195", "0196", "0197", "0198"],
               "q29": ["0199", "0200"]
               },
+    "loc04": {"q00": ["0201", "0202", "0203", "0204", "0205", "0206", "0207", "0208",
+                      "0209", "0210", "0211", "0212", "0213", "0214", "0215", "0216",
+                      "0217", "0218", "0219", "0220", "0221", "0222", "0223", "0224",
+                      "0225", "0226", "0227", "0228", "0229", "0230", "0231", "0232",
+                      "0233", "0234", "0235", "0236", "0237", "0238", "0239", "0240",
+                      "0241", "0242", "0243", "0244", "0245", "0246", "0247", "0248",
+                      "0249", "0250", "0251", "0252", "0253", "0254", "0255", "0256",
+                      "0257", "0258", "0259", "0260", "0261", "0262", "0263", "0264",
+                      "0265", "0266", "0267", "0268", "0269",
+                      "0270", "0271", "0272", "0273", "0274", "0275", "0276", "0277",
+                      "0278", "0279", "0280", "0281", "0282", "0283", "0284", "0285",
+                      "0286", "0287", "0288", "0289", "0290", "0291", "0292", "0293"]
+              },
+    "loc05": {"q00": ['0294', '0295', '0296', '0297', '0298', '0299', '0300', '0301',
+                      '0302', '0303', '0304', '0305', '0306', '0307', '0308', '0309',
+                      '0310', '0311', '0312', '0313', '0314', '0315', '0316', '0317',
+                      '0318', '0319', '0320', '0321', '0322', '0323', '0324', '0325',
+                      '0326', '0327', '0328', '0329', '0330', '0331', '0332', '0333',
+                      '0334', '0335', '0336', '0337', '0338', '0339', '0340', '0341',
+                      '0342', '0343', '0344', '0345', '0346', '0347', '0348', '0349',
+                      '0350', '0351', '0352', '0353', '0354', '0355', '0356', '0357',
+                      '0358', '0359', '0360', '0361', '0362', '0363', '0364', '0365',
+                      '0366', '0367', '0368', '0369', '0370', '0371', '0372', '0373',
+                      '0374', '0375', '0376', '0377', '0378', '0379', '0380', '0381',
+                      '0382', '0383', '0384', '0385', '0386', '0387', '0388', '0389',
+                      '0390', '0391', '0392', '0393', '0394', '0395', '0396', '0397',
+                      '0398', '0399', '0400', '0401', '0402', '0403', '0404', '0405',
+                      '0406', '0407', '0408', '0409', '0410', '0411', '0412', '0413',
+                      '0414', '0415', '0416']
+              },
     "fin00": {"q00": ["9001", "9002", "9003", "9004", "9005", "9006"],
               "q01": ["9007", "9008", "9009", "9010", "9011", "9012"],
               "q02": ["9013", "9014", "9015", "9016", "9017", "9018"],
@@ -104,10 +134,6 @@ original_tutorial_order = ["Take loc00q01", "Complete loc00q01", "Start  Tutoria
                            "Take loc01q14", "Complete loc01q14", "Start  Tutorial09", "Finish Tutorial09"]
 
 
-
-
-
-
 def get_completed_locquests(finished_levels):
     result_list = []
     for loc in loc_quest_level:
@@ -121,8 +147,9 @@ def get_completed_locquests(finished_levels):
     return result_list
 
 
-def get_detailed_levels_list(locquest=True, fail=False, tutorial=True, tutorial_order=original_tutorial_order, level=True):
-    print("tutor list", tutorial_order)
+def get_detailed_levels_list(locquest=True, fail=False, tutorial=True, tutorial_order=original_tutorial_order,
+                             level=True):
+    # print("tutor list", tutorial_order)
     result_list = []
     if tutorial:
         index = 0
@@ -166,7 +193,7 @@ def get_levels(locquest=None):
     result_list = []
     for loc in loc_quest_level:
         for quest in loc_quest_level[loc]:
-            if not locquest or locquest==loc+quest:
+            if not locquest or locquest == loc + quest:
                 for level in loc_quest_level[loc][quest]:
                     result_list.append(level)
     return result_list
@@ -187,12 +214,14 @@ def get_level_names(start, quantity):
 def get_next_level(level_num):
     return str(int(level_num) + 1).rjust(4, '0')
 
+
 def get_locquest(level_num):
     for loc in loc_quest_level.keys():
         for quest in loc_quest_level[loc]:
             if level_num in loc_quest_level[loc][quest]:
                 return loc + quest
     print("Уровня нет в списке:", level_num)
+
 
 def get_last_locquest(level_or_quest):
     """

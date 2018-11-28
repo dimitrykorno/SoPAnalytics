@@ -48,6 +48,12 @@ class Elements:
         self.targets_count = targets_count
         self.others_count = others_count
 
+    def get_element_count(self,element):
+        for group in (self.colors_count,self.super_count,self.targets_count,self.others_count):
+            if element in group:
+               return group[element]
+        return 0
+
     def to_string(self):
 
         info = "Targets: "
