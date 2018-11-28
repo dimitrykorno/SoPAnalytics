@@ -1,7 +1,7 @@
 from report_api.Menu import menu
 from Reports import M3LevelsFunnel, M3DetailedLevel, GlobalFunnel, UsersSessions, M3LevelBonuses, LastEventHistogram, \
     DetailedFunnel, LifetimeHistogram, ProgressHistogram, DustDynamics, CumulativeROI, RetentionPatternHypothesis, \
-    InAppSales
+    InAppSales, ElementByLevel
 
 reports = [
     ("1. Отчёт по качеству уровней", M3LevelsFunnel.new_report),
@@ -16,7 +16,8 @@ reports = [
     ("10.Динамика пыли", DustDynamics.new_report),
     ("11.Накопительный ROI", CumulativeROI.new_report),
     ("12.Гипотезы по ретеншену", RetentionPatternHypothesis.new_report),
-    ("13.Отчёт по продажам", InAppSales.new_report)
+    ("13.Отчёт по продажам", InAppSales.new_report),
+    ("14.Анализ взорванных элементов на уровне", ElementByLevel.new_report)
 ]
 
 menu(reports)
