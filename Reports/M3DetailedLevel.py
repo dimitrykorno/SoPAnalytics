@@ -5,6 +5,9 @@ from Data import Parse
 from Classes.User import User
 from report_api.Report import Report
 from report_api.Utilities.Utils import time_count
+from Utilities.Colors import Colors
+from Utilities.Targets import Targets
+from Utilities.Super import Supers
 from Utilities.Quests import get_levels, get_next_locquest
 
 app = "sop"
@@ -210,10 +213,20 @@ def new_report(os_list=["iOS"],
 
 def add_elements(df, index, event):
     for element in event.elements_count.colors_count:
-        df.loc[index, str(element)[7:]] = event.elements_count.colors_count[element]
+        element_obj=Colors.get_super(element)
+        if element_obj:
+            element_name = element if not element.startswith("Super_") else element[7:]
+            df.loc[index,element_name] = event.elements_count.colors_count[element]
     for element in event.elements_count.super_count:
-        df.loc[index, str(element)[7:]] = event.elements_count.super_count[element]
+        element_obj = Supers.get_super(element)
+        if element_obj:
+            element_name = element if not element.startswith("Super_") else element[7:]
+            df.loc[index, element_name] = event.elements_count.super_count[element]
     for element in event.elements_count.targets_count:
-        df.loc[index, str(element)[8:]] = event.elements_count.targets_count[element]
+        element_obj = Targets.get_super(element)
+        if element_obj:
+            element_name = element if not element.startswith("Super_") else element[7:]
+            df.loc[index, element_name] = event.elements_count.targets_count[element]
     for element in event.elements_count.others_count:
-        df.loc[index, str(element)] = event.elements_count.others_count[element]
+        element_name = element if not element.startswith("Super_") else element[7:]
+        df.loc[index, element_name] = event.elements_count.others_count[element]

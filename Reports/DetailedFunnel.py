@@ -48,7 +48,10 @@ def new_report(game_point="0030",
                                min_version=None,
                                max_version=None,
                                events_list=[("Match3Events",),
-                                            ("CityEvent", '{"Quest"%')])
+                                            ("CityEvent", '{"Quest"%'),
+                                            ("","%Match3Events%"),
+                                            ("", '{"CityEvent":{"Quest":%')
+                                            ])
         df = pd.DataFrame(index=[0],
                           columns=["Event", "Users", "Users %"])
         df.fillna(0, inplace=True)

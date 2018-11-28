@@ -53,9 +53,15 @@ def new_report(os_list=["iOS"],
                                max_version=None,
                                events_list=[("CityEvent", ["%StartGame%", '{"Quest%',
                                                            "%InitGameState%", "%BuyPremiumCoin%Success%"]),
-                                            ("Tutorial",)])
+                                            ("Tutorial",),
+                                            ("Match3Events",),
+                                            ("", ["%CityEvent%StartGame%", '{"CityEvent":{"Quest":%',
+                                                           "%CityEvent%InitGameState%", "%CityEvent%BuyPremiumCoin%Success%"]),
+                                            ("","%Tutorial%"),
+                                            ("","%Match3Events%")
+                                            ])
 
-        parameters = ["Retention", "Retention %", "Quest loss", "Level loss",  # "Loss",
+        parameters = ["Retention", "Retention %", "Quest loss", "Level loss",
                       "Last event loss", "loss %", "FinishGame", "Coins"]
         levels_list = get_detailed_levels_list(fail=True)
 
@@ -63,6 +69,7 @@ def new_report(os_list=["iOS"],
         started_levels = set()
         completed_levels = set()
         finished_levels = set()
+        failed_levels=set()
         started_quests = set()
         finished_quests = set()
         started_tutorials = set()
@@ -80,13 +87,17 @@ def new_report(os_list=["iOS"],
                 funnel_data["Start  " + lvl1]["Retention"] += 1
             for lvl2 in completed_levels:
                 funnel_data["Finish " + lvl2]["Retention"] += 1
-            for lvl3 in finished_levels:
-                funnel_data["Finish " + lvl3]["FinishGame"] += 1
+            for lvl3 in failed_levels:
+                funnel_data["Fail   " + lvl3]["Retention"] += 1
+            for lvl4 in finished_levels:
+                funnel_data["Finish " + lvl4]["FinishGame"] += 1
 
             for quest in started_quests:
-                funnel_data["Start  " + quest]["Retention"] += 1
+                if "Start  " + quest in funnel_data:
+                    funnel_data["Start  " + quest]["Retention"] += 1
             for quest in finished_quests:
-                funnel_data["Finish " + quest]["Retention"] += 1
+                if "Finish " + quest in funnel_data:
+                    funnel_data["Finish " + quest]["Retention"] += 1
 
             for tutor in started_tutorials:
                 funnel_data["Start  " + tutor]["Retention"] += 1
@@ -132,6 +143,7 @@ def new_report(os_list=["iOS"],
                 opened_game += 1
                 started_levels = set()
                 completed_levels = set()
+                failed_levels = set()
                 finished_levels = set()
                 started_quests = set()
                 finished_quests = set()
@@ -143,6 +155,7 @@ def new_report(os_list=["iOS"],
                 last_game_event = Report.current_event
 
             elif Report.current_event.__class__ is Match3FailGame:
+                failed_levels.add(Report.current_event.level_num)
                 last_game_event = Report.current_event
 
             elif Report.current_event.__class__ is Match3CompleteTargets:
@@ -180,14 +193,13 @@ def new_report(os_list=["iOS"],
                     real_tutorial_order.append(tutor_string)
         flush_user_info()
 
-        print(levels_list)
-        print(real_tutorial_order)
+        #print(levels_list)
+        #print(real_tutorial_order)
         levels_list = get_detailed_levels_list(fail=True, tutorial_order=real_tutorial_order)
-        print(levels_list)
+        #print(levels_list)
         df = pd.DataFrame(index=levels_list,
                           columns=parameters)
         for lvl in levels_list:
-            print(lvl)
             for param in parameters:
                 df.at[lvl, param] = funnel_data[lvl][param]
                 # print(lvl,df.at[lvl, "Retention"],funnel_data[lvl]["Retention"])
@@ -225,8 +237,8 @@ def new_report(os_list=["iOS"],
         df["Level loss"].replace(0, "", inplace=True)
         df["Quest loss"].replace(0, "", inplace=True)
         df["loss %"].replace(0, "", inplace=True)
-        df["Retention"].replace(0, "", inplace=True)
-        df["Retention %"].replace(0, "", inplace=True)
+        #df["Retention"].replace(0, "", inplace=True)
+        #df["Retention %"].replace(0, "", inplace=True)
         df["FinishGame"].replace(0, "", inplace=True)
         df["Last event loss"].replace(0, "", inplace=True)
         df["Coins"].replace(0, "", inplace=True)

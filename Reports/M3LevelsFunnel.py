@@ -15,7 +15,7 @@ app = "sop"
 # noinspection PyDefaultArgument,PyDefaultArgument
 @time_count
 def new_report(os_list=["iOS"],
-               period_start=None,
+               period_start="2018-10-15",
                period_end=None,
                min_version=None,
                max_version=None,
@@ -48,13 +48,16 @@ def new_report(os_list=["iOS"],
                                  min_version=min_version,
                                  max_version=max_version,
                                  countries_list=countries_list)
+        # поддержка а-б тестов
         Report.set_events_data(additional_parameters=[],
                                period_start=period_start,
                                period_end=None,
                                min_version=None,
                                max_version=None,
                                events_list=[("Match3Events",),
-                                            ("CityEvent", "%StartGame%")])
+                                            ("", "%Match3Events%"),
+                                            ("CityEvent", "%StartGame%"),
+                                            ("", "%CityEvent%StartGame%")])
 
         left_par = "Left " + str(days_left) + "+ days"
         levels = get_level_names(start, quantity)
@@ -75,7 +78,7 @@ def new_report(os_list=["iOS"],
                         Report.current_event.start_bonuses.third:
                     return False
                 else:
-                    levels_data[current_level]["Clean Start"] += 1
+                    user_levels_data[current_level]["Clean Start"] += 1
                     return True
 
             elif Report.current_event.__class__ is Match3CompleteTargets:
@@ -83,79 +86,78 @@ def new_report(os_list=["iOS"],
                 if clean_start:
                     # если не использовал молоток, то чисто
                     if Report.current_event.ingame_bonuses == 0:
-                        levels_data[current_level]["Clean Finish"] += 1
+                        user_levels_data[current_level]["Clean Finish"] += 1
                         return True
                     else:
                         # если использовал - отбираем чистый старт
-                        levels_data[current_level]["Clean Start"] -= 1
+                        user_levels_data[current_level]["Clean Start"] -= 1
                         return False
             return clean_start
 
         def difficulty():
             if Report.current_event.__class__ is Match3StartGame:
                 # в сложнотсти считаем все старты уровней
-                levels_data[current_level]["Difficulty"] += 1
+                user_levels_data[current_level]["Difficulty"] += 1
 
         def attempts():
 
             if Report.current_event.__class__ is Match3CompleteTargets:
                 # количество попыток пройти уровень
-                if user_attempts[current_level] == 0:
-                    user_attempts[current_level] = 1
-                level_attempts[current_level].append(user_attempts[current_level])
+                if user_levels_data[current_level]["Attempts"] == 0:
+                    user_levels_data[current_level]["Attempts"] = 1
 
             elif Report.current_event.__class__ is Match3FailGame:
                 # Увеличиваем счетчик попыток
-                user_attempts[current_level] += 1
+                user_levels_data[current_level]["Attempts"] += 1
 
         def clean_attempts():
 
             if Report.current_event.__class__ is Match3CompleteTargets:
                 if clean_start and Report.current_event.ingame_bonuses == 0:
                     # количество чистых попыток пройти уровень
-                    if user_clean_attempts[current_level] == 0:
-                        user_clean_attempts[current_level] = 1
-                    level_clean_attempts[current_level].append(user_clean_attempts[current_level])
+                    if user_levels_data[current_level]["Clean Attempts"] == 0:
+                        user_levels_data[current_level]["Clean Attempts"] = 1
 
             elif Report.current_event.__class__ is Match3FailGame:
                 if clean_start and Report.current_event.ingame_bonuses == 0:
-                    user_clean_attempts[current_level] += 1
+                    user_levels_data[current_level]["Clean Attempts"] += 1
 
         def purchases():
             if Report.current_event.__class__ is Match3BuyPremiumCoin and Report.current_event.status == "Success":
-                levels_data[current_level]["Purchases"] += 1
-                levels_data[current_level]["Purchases Sum"] += get_price(Report.current_event.obj_name, money="rub")
+                user_levels_data[current_level]["Purchases"] += 1
+                user_levels_data[current_level]["Purchases Sum"] += get_price(Report.current_event.obj_name,
+                                                                              money="rub")
 
                 # Считаем первые покупки игроков
                 if first_purchase:
-                    levels_data[current_level]["First purchase"] += 1
+                    user_levels_data[current_level]["First purchase"] += 1
                     return False
             return first_purchase
 
         def dust():
             if Report.current_event.__class__ is Match3FinishGame:
                 # Добавляем собранную на уровне пыль
-                collected_dust[current_level].append(int(Report.current_event.game_currency_count))
+                user_levels_data[current_level]["Dust"] = Report.current_event.game_currency_count
                 # Добавляем пыль на руках у игроков
-                user_dust[current_level].append(Report.current_user.game_coin)
+                user_levels_data[current_level]["Dust on hands"] = Report.current_user.game_coin
 
         # Стартовые параметры
-        level_attempts = dict.fromkeys(levels)
-        level_clean_attempts = dict.fromkeys(levels)
-        user_attempts = dict.fromkeys(levels, 0)
-        user_clean_attempts = dict.fromkeys(levels, 0)
-        collected_dust = dict.fromkeys(levels)
-        user_dust = dict.fromkeys(levels)
-        user_clean_start = dict.fromkeys(levels)
-        levels_data = {}
-        for level in levels:
-            levels_data[level] = dict.fromkeys(parameters, 0)
-            level_attempts[level] = []
-            level_clean_attempts[level] = []
-            collected_dust[level] = []
-            user_dust[level] = []
-            user_clean_start[level] = []
+        user_test_groups = set()
+        report_data = {}
+        users_count = {}
 
+        def add_new_test(test_name):
+            report_data[test_name] = {}
+            for level in levels:
+                report_data[test_name][level] = dict.fromkeys(parameters, 0)
+                report_data[test_name][level]["Attempts"] = []
+                report_data[test_name][level]["Clean Attempts"] = []
+                report_data[test_name][level]["Dust"] = []
+                report_data[test_name][level]["Dust on hands"] = []
+
+        user_levels_data = {}
+        for level in levels:
+            user_levels_data[level] = dict.fromkeys(parameters, 0)
         started_levels = set()
         finished_levels = set()
         first_purchase = True
@@ -168,25 +170,42 @@ def new_report(os_list=["iOS"],
                 user = Report.previous_user
             else:
                 user = Report.current_user
+            # если игрок попал в группу АБ-теста, мы не добавляем его в группу А
+            for test_name in [group for group in user_test_groups if not (group == "A" and len(user_test_groups) > 1)]:
+                if test_name not in report_data:
+                    add_new_test(test_name)
+                    users_count[test_name] = 0
+                # считаем юзеров в каждом тесте
+                users_count[test_name] += 1
+                # переносим пользовательские данные
+                for param in ["Clean Start", "Clean Finish", "Difficulty",
+                              "Purchases Sum", "Purchases", "First purchase"]:
+                    for lvl in started_levels:
+                        report_data[test_name][lvl][param] += user_levels_data[lvl][param]
+                for param in ["Attempts", "Clean Attempts", "Dust", "Dust on hands"]:
+                    for lvl in started_levels:
+                        if param in ("Attempts", "Clean Attempts") and user_levels_data[lvl][param] == 0:
+                            continue
+                        report_data[test_name][lvl][param].append(user_levels_data[lvl][param])
+                for level1 in started_levels:
+                    report_data[test_name][level1]["Started"] += 1
+                for level2 in finished_levels:
+                    report_data[test_name][level2]["Finished"] += 1
 
-            for level1 in finished_levels:
-                levels_data[level1]["Started"] += 1
-            for level2 in finished_levels:
-                levels_data[level2]["Finished"] += 1
-
-            # Проверка на отвал
-            # При отсутствии максимального дня в игре (для среза выборки) берется макс дата из базы данных.
-            #print(days_max, user.install_date + timedelta(days=days_max) > datetime.now().date(),Report.get_timediff(user.last_enter.date(), datetime.now().date(), measure="day"),days_left)
-            if ((not days_max or user.install_date + timedelta(days=days_max) > datetime.now().date()) and
-                        Report.get_timediff(user.last_enter.date(), datetime.now().date(), measure="day") >= days_left) \
-                    or \
-                    (days_max and user.last_enter.date()> user.install_date + timedelta(days=days_max) and
-                             Report.get_timediff(user.last_enter.date(), user.install_date + timedelta(
-                        days=days_max), measure="day") > days_left):
-                #print("got")
-                if started_levels:
-                    for level3 in list(started_levels - finished_levels):
-                        levels_data[level3][left_par] += 1
+                # Проверка на отвал
+                # При отсутствии максимального дня в игре (для среза выборки) берется макс дата из базы данных.
+                # print(days_max, user.install_date + timedelta(days=days_max) > datetime.now().date(),Report.get_timediff(user.last_enter.date(), datetime.now().date(), measure="day"),days_left)
+                if ((not days_max or user.install_date + timedelta(days=days_max) > datetime.now().date()) and
+                            Report.get_timediff(user.last_enter.date(), datetime.now().date(),
+                                                measure="day") >= days_left) \
+                        or \
+                        (days_max and user.last_enter.date() > user.install_date + timedelta(days=days_max) and
+                                 Report.get_timediff(user.last_enter.date(), user.install_date + timedelta(
+                                     days=days_max), measure="day") > days_left):
+                    # print("got")
+                    if started_levels:
+                        for level3 in list(started_levels - finished_levels):
+                            report_data[test_name][level3][left_par] += 1
 
         while Report.get_next_event():
 
@@ -197,26 +216,30 @@ def new_report(os_list=["iOS"],
 
             # Если уровень из списка рассматрвиаемых
             if current_level in levels:
-                # if Report.get_timediff(measure="day")>=1 or Report.is_new_user():
-                # print(Report.current_user.user_id, Report.get_time_since_install(),
-                # Report.get_time_since_last_enter(), Report.current_user.entries[-1], Report.is_new_user() )
-
+                # print(current_level,levels,Report.current_event.__class__.__name__)
+                # print(Report.current_event.to_string())
                 # Нвоый пользователь
                 if (Report.is_new_user() and not Report.previous_user.is_skipped()) or (
                             Report.get_time_since_install() > days_max):
-                    # print("flush",Report.is_new_user(), (Report.get_time_since_install() > days_max))
                     flush_user_data()
                     # сброс личных параметров
+                    user_test_groups = set()
+                    user_levels_data = {}
+                    for level in levels:
+                        user_levels_data[level] = dict.fromkeys(parameters, 0)
                     started_levels = set()
                     finished_levels = set()
-                    user_attempts = dict.fromkeys(levels, 0)
-                    user_clean_attempts = dict.fromkeys(levels, 0)
                     first_purchase = True
+                    clean_start = True
 
                     if days_max and not Report.is_new_user() and Report.get_time_since_install(
                             user="current") > days_max:
                         Report.skip_current_user()
                         continue
+                    if current_level != "0001":
+                        Report.skip_current_user()
+                        continue
+
                 start_finish()
                 clean_start = clean_start_finish()
                 difficulty()
@@ -224,61 +247,75 @@ def new_report(os_list=["iOS"],
                 clean_attempts()
                 first_purchase = purchases()
                 dust()
+                # поддержка АБ-тестов
+                user_test_groups.add(Report.current_event.test_name)
+
         flush_user_data()
-
-        df = pd.DataFrame(index=levels,
-                          columns=parameters)
-        df = df.fillna(0)
-
-        for level in levels:
-            df.at[level, "Started"] = levels_data[level]["Started"]
-            df.at[level, "Finished"] = levels_data[level]["Finished"]
-            df.at[level, "Purchases"] = levels_data[level]["Purchases"]
-            df.at[level, "Purchases Sum"] = levels_data[level]["Purchases Sum"]
-            df.at[level, "First purchase"] = levels_data[level]["First purchase"]
-            df.at[level, "Clean Start"] = levels_data[level]["Clean Start"]
-            df.at[level, "Clean Finish"] = levels_data[level]["Clean Finish"]
-            df.at[level, "Difficulty"] = levels_data[level]["Difficulty"]
-            df.at[level, left_par]=levels_data[level][left_par]
-
-        # Финальные рассчеты
-        df["Start Convertion"] = round(df["Started"] * 100 / Report.total_users, 1)
-        df["Difficulty"] = round(100 - df["Finished"] * 100 / df["Difficulty"], 1)
-        df["Clean Difficulty"] = round(100 - df["Clean Finish"] * 100 / df["Clean Start"], 1)
-        df["ARPU"] = round(df["Purchases Sum"] / df["Started"], 1)
-        for level in levels:
-            # проверка на выбросы в попытках
-            if len(level_attempts[level]) > 0:
-                level_attempts[level] = outliers_iqr(level_attempts[level], level + " attempts", multiplier=10)
-                df.at[level, "Attempts"] = round(1 - 1 / (sum(level_attempts[level]) / len(level_attempts[level])),
-                                                 3) * 100
-
-            if len(level_clean_attempts[level]) > 0:
-                level_clean_attempts[level] = outliers_iqr(level_clean_attempts[level], level + " clean attempts",
-                                                           multiplier=4)
-                df.at[level, "Clean Attempts"] = round(
-                    1 - 1 / (sum(level_clean_attempts[level]) / len(level_clean_attempts[level])),
-                    3) * 100
-            # Проверка на выбросы в значениях пыли
-            if len(collected_dust[level]) > 0:
-                if len(collected_dust[level]) > 10:
-                    collected_dust[level] = outliers_iqr(collected_dust[level], level + " collected dust", multiplier=5)
-                df.at[level, "Dust"] = round(sum(collected_dust[level]) / float(len(collected_dust[level])), 1)
-
-            if len(user_dust[level]) > 0:
-                if len(user_dust[level]) > 10:
-                    user_dust[level] = outliers_iqr(data_list=user_dust[level], where=level + " user dust",
-                                                    max_outliers=False, min_outliers=True, multiplier=15)
-                    user_dust[level] = outliers_iqr(user_dust[level], level + " user dust", multiplier=5)
-                df.at[level, "Dust on hands"] = round(sum(user_dust[level]) / float(len(user_dust[level])), 1)
-
-        # Печать
-        print("Total users:", Report.total_users)
-        print(df.to_string())
 
         writer = pd.ExcelWriter(
             "Results/Отчёт по качеству уровней/Levels " + str(start) + "-" + str(
                 start + quantity - 1) + " " + str(min_version) + " " + str(
                 days_max) + "days " + os_str + ".xlsx")
-        df.to_excel(excel_writer=writer)
-        writer.save()
+        for test in report_data:
+            df = pd.DataFrame(index=levels,
+                              columns=parameters)
+            df = df.fillna(0)
+
+            for level in levels:
+                df.at[level, "Started"] = report_data[test][level]["Started"]
+                df.at[level, "Finished"] = report_data[test][level]["Finished"]
+                df.at[level, "Purchases"] = report_data[test][level]["Purchases"]
+                df.at[level, "Purchases Sum"] = report_data[test][level]["Purchases Sum"]
+                df.at[level, "First purchase"] = report_data[test][level]["First purchase"]
+                df.at[level, "Clean Start"] = report_data[test][level]["Clean Start"]
+                df.at[level, "Clean Finish"] = report_data[test][level]["Clean Finish"]
+                df.at[level, "Difficulty"] = report_data[test][level]["Difficulty"]
+                df.at[level, left_par] = report_data[test][level][left_par]
+
+            # Финальные рассчеты
+            df["Start Convertion"] = round(df["Started"] * 100 / users_count[test], 1)
+            df["Difficulty"] = round(100 - df["Finished"] * 100 / df["Difficulty"], 0)
+            df["Clean Difficulty"] = round(100 - df["Clean Finish"] * 100 / df["Clean Start"], 0)
+            df["ARPU"] = round(df["Purchases Sum"] / df["Started"], 1)
+            for level in levels:
+                # проверка на выбросы в попытках
+                if len(report_data[test][level]["Attempts"]) > 0:
+                    report_data[test][level]["Attempts"] = outliers_iqr(report_data[test][level]["Attempts"],
+                                                                        level + " attempts", multiplier=10)
+                    df.at[level, "Attempts"] = round(
+                        1 - 1 / (sum(report_data[test][level]["Attempts"]) / len(report_data[test][level]["Attempts"])),
+                        3) * 100
+
+                if len(report_data[test][level]["Clean Attempts"]) > 0:
+                    report_data[test][level]["Clean Attempts"] = outliers_iqr(
+                        report_data[test][level]["Clean Attempts"], level + " clean attempts",
+                        multiplier=30)
+                    df.at[level, "Clean Attempts"] = round(
+                        1 - 1 / (sum(report_data[test][level]["Clean Attempts"]) / len(
+                            report_data[test][level]["Clean Attempts"])),
+                        3) * 100
+
+                # Проверка на выбросы в значениях пыли
+                if len(report_data[test][level]["Dust"]) > 0:
+                    if len(report_data[test][level]["Dust"]) > 10:
+                        report_data[test][level]["Dust"] = outliers_iqr(report_data[test][level]["Dust"],
+                                                                        level + " collected dust", multiplier=5)
+                    df.at[level, "Dust"] = round(
+                        sum(report_data[test][level]["Dust"]) / float(len(report_data[test][level]["Dust"])), 1)
+
+                if len(report_data[test][level]["Dust on hands"]) > 0:
+                    if len(report_data[test][level]["Dust on hands"]) > 10:
+                        report_data[test][level]["Dust on hands"] = outliers_iqr(
+                            data_list=report_data[test][level]["Dust on hands"], where=level + " user dust",
+                            max_outliers=False, min_outliers=True, multiplier=15)
+                        report_data[test][level]["Dust on hands"] = outliers_iqr(
+                            report_data[test][level]["Dust on hands"], level + " user dust", multiplier=5)
+                    df.at[level, "Dust on hands"] = round(sum(report_data[test][level]["Dust on hands"]) / float(
+                        len(report_data[test][level]["Dust on hands"])), 1)
+
+            # Печать
+            print("Total users group", test, users_count[test])
+            print(df.to_string())
+
+            df.to_excel(excel_writer=writer, sheet_name=test)
+            writer.save()
