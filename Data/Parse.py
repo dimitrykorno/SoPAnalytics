@@ -18,7 +18,6 @@ from Utilities.Tutorials import tutorials
 from Utilities.Shop import get_price
 
 
-
 def parse_event(event_name, event_json, datetime):
     # заменяем двойные двойные кавычки на одинакрные двойные кавычки (да, тупо...)
     event_json = re.sub(r'""', r'"', event_json)
@@ -33,28 +32,40 @@ def parse_event(event_name, event_json, datetime):
         print(event_name, event_json)
 
         return None
-
     try:
-
-        if event_name == "Match3Events":
-            new_event = parse_match3_event(parameters, datetime)
-        elif event_name == "CityEvent":
-            new_event = parse_city_event(parameters, datetime)
-        elif event_name == "TutorialSteps":
-            new_event = parse_tutorial_steps(parameters, datetime)
-        elif event_name == "Tutorial":
-            new_event = parse_tutorial_complete(parameters, datetime)
-        else:
-            raise ValueError("Event parse: Unknown event name:", event_name, datetime)
+        # попытка парсинга события
+        new_event = start_parse(event_name, parameters, datetime)
+        if new_event is None:
+            # Если имя события неизвестно, то это тест.
+            test_name = event_name
+            event_name = list(parameters)[0]
+            parameters = parameters[event_name]
+            new_event = start_parse(event_name, parameters, datetime)
+            if not new_event:
+                raise ValueError("Event parse: Unknown event name:", event_name, datetime, " May be a test:", test_name)
+            new_event.set_ab_test_name(test_name)
 
     except Exception as er:
 
-        Report.Report.not_found.add(er.args+" Error: " + event_name + " Json: " + event_json)
+        Report.Report.not_found.add(er.args + " Error: " + event_name + " Json: " + event_json)
         Report.Report.not_found.add(traceback.extract_stack())
-        # print(error.args)
+        print(er.args)
         return
 
     return new_event
+
+
+def start_parse(event_name, parameters, datetime):
+    if event_name == "Match3Events":
+        return parse_match3_event(parameters, datetime)
+    elif event_name == "CityEvent":
+        return parse_city_event(parameters, datetime)
+    elif event_name == "TutorialSteps":
+        return parse_tutorial_steps(parameters, datetime)
+    elif event_name == "Tutorial":
+        return parse_tutorial_complete(parameters, datetime)
+    else:
+        return None
 
 
 def parse_match3_event(parameters, datetime):
@@ -62,6 +73,7 @@ def parse_match3_event(parameters, datetime):
     level_num_corrected = level_num
     if "X" in level_num:
         level_num_corrected = "9" + level_num[2:]
+    level_num_corrected=level_num_corrected[:4]
     event_type = list(parameters[level_num])[0]
 
     try:
@@ -136,10 +148,11 @@ def parse_match3_event(parameters, datetime):
                 premium_coin = int(parameters[level_num][event_type]["premiumCoin"])
             else:
                 premium_coin = None
+            price=0
             if "AppPurchasePrice" in parameters[level_num][event_type]:
                 price = round(float(parameters[level_num][event_type]["AppPurchasePrice"]), 2)
             else:
-                price = get_price(parameters[level_num][event_type]["AppPurchaseSKU"],money="dollar")
+                price = get_price(parameters[level_num][event_type]["AppPurchaseSKU"], money="dollar")
             return Match3BuyPremiumCoin(
                 level_num=level_num_corrected,
                 quest=parameters[level_num][event_type]["Quest"],
@@ -184,15 +197,15 @@ def get_elements(params):
     for key, value in params["ElementsCount"].items():
         color = Colors.get_color(key)
         if color:
-            colors[color] = value
+            colors[key] = value
             continue
         sup = Supers.get_super(key)
         if sup:
-            supers[sup] = value
+            supers[key] = value
             continue
         target = Targets.get_target(key)
         if target:
-            targets[target] = value
+            targets[key] = value
             continue
 
         Report.Report.not_found.add("Elements parse: Unknown object: " + key)
@@ -256,9 +269,11 @@ def parse_city_event(parameters, datetime):
                 premium_coin = int(parameters[event_type]["premiumCoin"])
             else:
                 premium_coin = None
-            price = round(float(parameters[event_type]["AppPurchasePrice"]), 2) if "AppPurchasePrice" in \
-                                                                                   parameters[
-                                                                                       event_type] else None
+            price = 0
+            if "AppPurchasePrice" in parameters[event_type]:
+                price = round(float(parameters[event_type]["AppPurchasePrice"]), 2)
+            else:
+                price = get_price(parameters[event_type]["AppPurchaseSKU"], money="dollar")
             return CityEventsBuyPremiumCoin(
                 quest=parameters[event_type]["Quest"],
                 app_purchase_sku=parameters[event_type]["AppPurchaseSKU"],
@@ -411,10 +426,11 @@ def parse_city_event(parameters, datetime):
         elif event_type == "Remove":
             # if "premiumCoin" not in parameters[event_type]:
             #    return None
+
             return CityEventsRemove(
                 object_name=parameters[event_type],
                 datetime=datetime,
-                premium_coin=int(parameters[event_type]["premiumCoin"]),
+                premium_coin=int(parameters[event_type]["PremiumCoin"]),
                 quest_id=parameters[event_type]["Quest"]
             )
         elif event_type == "MillDust":
