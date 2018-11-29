@@ -6,7 +6,7 @@ from Data import Parse
 from Classes.User import User
 from Classes.Events import *
 from report_api.Report import Report
-from report_api.Utilities.Utils import time_count, draw_plot
+from report_api.Utilities.Utils import time_count, draw_subplot
 from Utilities.Quests import loc_quest_level, get_locquest
 
 app = "sop"
@@ -133,12 +133,11 @@ def new_report(os_list=["iOS"],
             for day in days:
                 print("day:", day, progress_levels[version][str(day) + " day"])
 
-        labels = {}
-        for d in days:
-            labels[str(d) + " day"] = ["Start", "Fail", "Finish"]
-        title = "Гистограма прогресса" + str(app_version) + " " + str(period_start) + "-" + str(
+
+        title = os_str+ " Гистограма прогресса " + str(period_start) + "-" + str(
             period_end)
         if users_last_day:
             title += " last day"
-        draw_plot(levels, progress_levels, additional_labels=labels, show=True, colors=["y", "r", "g"], title=title,
+        for version in app_version:
+            draw_subplot(levels, progress_levels[version], plot_type="bar", additional_labels=["Start", "Fail", "Finish"], show=True, colors=["y", "r", "g"], title=title+" "+version,
                   size=(2, 1), folder="Results/Гистограма прогресса/")
