@@ -1,6 +1,6 @@
 from report_api.CommonReports import LastEventHistogram
 from report_api.Utilities.Utils import time_count
-from Data import Parse
+from sop_analytics.Data import Parse
 import os
 
 

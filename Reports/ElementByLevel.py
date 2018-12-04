@@ -1,12 +1,12 @@
 from report_api.Utilities.Utils import time_count, try_save_writer
 import pandas as pd
-from Utilities.Quests import get_level_names
-from Utilities.Colors import Colors
-from Utilities.Targets import Targets
-from Utilities.Super import Supers
-from Classes.Events import *
-from Data import Parse
-from Classes.User import User
+from sop_analytics.Utilities.Quests import get_level_names
+from sop_analytics.Utilities.Colors import Colors
+from sop_analytics.Utilities.Targets import Targets
+from sop_analytics.Utilities.Super import Supers
+from sop_analytics.Classes.Events import *
+from sop_analytics.Data import Parse
+from sop_analytics.Classes.User import User
 from report_api.Report import Report
 
 app = "sop"
@@ -140,8 +140,8 @@ def new_report(os_list=["iOS"],
             df = pd.DataFrame(index=levels, columns=elements)
             df.fillna(0.0, inplace=True)
             for lvl in levels:
-                if lvl<"0015":
-                    print(test_name,lvl, report_data[test_name][lvl])
+                # if lvl<"0015":
+                #     print(test_name,lvl, report_data[test_name][lvl])
                 for element in elements:
                     if len(report_data[test_name][lvl][element]) > 0:
                         df.at[lvl, element] = round(

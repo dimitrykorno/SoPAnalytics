@@ -1,7 +1,7 @@
 from report_api.CommonReports import CumulativeROI
 from report_api.Utilities.Utils import time_count
-from Data import Parse
-from Classes.User import User
+from sop_analytics.Data import Parse
+from sop_analytics.Classes.User import User
 import os
 
 

@@ -1,5 +1,5 @@
-from Classes.Events import *
-from Classes.Match3Objects import Bonuses
+from sop_analytics.Classes.Events import *
+from sop_analytics.Classes.Match3Objects import Bonuses
 
 
 class User:

@@ -1,21 +1,21 @@
-from Utilities.Shop import get_price
+from sop_analytics.Utilities.Shop import get_price
 import pandas as pd
 from datetime import timedelta
-from Utilities.Quests import get_level_names
-from Classes.Events import *
-from Data import Parse
-from Classes.User import User
+from sop_analytics.Utilities.Quests import get_level_names
+from sop_analytics.Classes.Events import *
+from sop_analytics.Data import Parse
+from sop_analytics.Classes.User import User
 from report_api.Report import Report
 from datetime import datetime
-from report_api.Utilities.Utils import time_count, outliers_iqr
-
+from report_api.Utilities.Utils import time_count, outliers_iqr, try_save_writer, check_folder
+import os
 app = "sop"
 
 
 # noinspection PyDefaultArgument,PyDefaultArgument
 @time_count
 def new_report(os_list=["iOS"],
-               period_start="2018-10-15",
+               period_start="2018-11-01",
                period_end=None,
                min_version=None,
                max_version=None,
@@ -23,7 +23,10 @@ def new_report(os_list=["iOS"],
                start=1,
                quantity=100,
                days_left=None,
-               days_max=3, ):
+               days_max=None, ):
+    if not days_max:
+        days_max = 365
+    days_max = int(days_max)
     if not days_left:
         if days_max >= 28:
             days_left = 14
@@ -33,9 +36,6 @@ def new_report(os_list=["iOS"],
             days_left = 3
         else:
             days_left = 999
-    if not days_max:
-        days_max = 365
-    days_max = int(days_max)
 
     for os_str in os_list:
         # БАЗА ДАННЫХ
@@ -175,22 +175,28 @@ def new_report(os_list=["iOS"],
                 if test_name not in report_data:
                     add_new_test(test_name)
                     users_count[test_name] = 0
+                    users_count["total"] = 0
                 # считаем юзеров в каждом тесте
                 users_count[test_name] += 1
+                users_count["total"] += 1
                 # переносим пользовательские данные
                 for param in ["Clean Start", "Clean Finish", "Difficulty",
                               "Purchases Sum", "Purchases", "First purchase"]:
                     for lvl in started_levels:
                         report_data[test_name][lvl][param] += user_levels_data[lvl][param]
+                        report_data["total"][lvl][param] += user_levels_data[lvl][param]
                 for param in ["Attempts", "Clean Attempts", "Dust", "Dust on hands"]:
                     for lvl in started_levels:
                         if param in ("Attempts", "Clean Attempts") and user_levels_data[lvl][param] == 0:
                             continue
                         report_data[test_name][lvl][param].append(user_levels_data[lvl][param])
+                        report_data["total"][lvl][param].append(user_levels_data[lvl][param])
                 for level1 in started_levels:
                     report_data[test_name][level1]["Started"] += 1
+                    report_data["total"][level1]["Started"] += 1
                 for level2 in finished_levels:
                     report_data[test_name][level2]["Finished"] += 1
+                    report_data["total"][level2]["Finished"] += 1
 
                 # Проверка на отвал
                 # При отсутствии максимального дня в игре (для среза выборки) берется макс дата из базы данных.
@@ -206,7 +212,7 @@ def new_report(os_list=["iOS"],
                     if started_levels:
                         for level3 in list(started_levels - finished_levels):
                             report_data[test_name][level3][left_par] += 1
-
+        add_new_test("total")
         while Report.get_next_event():
 
             # Событие М3 - может смениться уровень
@@ -252,10 +258,14 @@ def new_report(os_list=["iOS"],
 
         flush_user_data()
 
-        writer = pd.ExcelWriter(
-            "Results/Отчёт по качеству уровней/Levels " + str(start) + "-" + str(
-                start + quantity - 1) + " " + str(min_version) + " " + str(
-                days_max) + "days " + os_str + ".xlsx")
+        result_files=[]
+        folder_dest="Results/Отчёт по качеству уровней/"
+        check_folder(folder_dest)
+        file_name=folder_dest+"Levels " + str(start) + "-" + str(
+                start + quantity - 1) + " " + str(min_version) + " " + os_str + ".xlsx"
+        result_files.append(os.path.abspath(file_name))
+        writer = pd.ExcelWriter(file_name)
+
         for test in report_data:
             df = pd.DataFrame(index=levels,
                               columns=parameters)
@@ -281,7 +291,7 @@ def new_report(os_list=["iOS"],
                 # проверка на выбросы в попытках
                 if len(report_data[test][level]["Attempts"]) > 0:
                     report_data[test][level]["Attempts"] = outliers_iqr(report_data[test][level]["Attempts"],
-                                                                        level + " attempts", multiplier=10)
+                                                                        level + " attempts", multiplier=10,print_excl=False)
                     df.at[level, "Attempts"] = round(
                         1 - 1 / (sum(report_data[test][level]["Attempts"]) / len(report_data[test][level]["Attempts"])),
                         3) * 100
@@ -289,7 +299,7 @@ def new_report(os_list=["iOS"],
                 if len(report_data[test][level]["Clean Attempts"]) > 0:
                     report_data[test][level]["Clean Attempts"] = outliers_iqr(
                         report_data[test][level]["Clean Attempts"], level + " clean attempts",
-                        multiplier=30)
+                        multiplier=30,print_excl=False)
                     df.at[level, "Clean Attempts"] = round(
                         1 - 1 / (sum(report_data[test][level]["Clean Attempts"]) / len(
                             report_data[test][level]["Clean Attempts"])),
@@ -299,7 +309,7 @@ def new_report(os_list=["iOS"],
                 if len(report_data[test][level]["Dust"]) > 0:
                     if len(report_data[test][level]["Dust"]) > 10:
                         report_data[test][level]["Dust"] = outliers_iqr(report_data[test][level]["Dust"],
-                                                                        level + " collected dust", multiplier=5)
+                                                                        level + " collected dust", multiplier=5,print_excl=False)
                     df.at[level, "Dust"] = round(
                         sum(report_data[test][level]["Dust"]) / float(len(report_data[test][level]["Dust"])), 1)
 
@@ -307,15 +317,17 @@ def new_report(os_list=["iOS"],
                     if len(report_data[test][level]["Dust on hands"]) > 10:
                         report_data[test][level]["Dust on hands"] = outliers_iqr(
                             data_list=report_data[test][level]["Dust on hands"], where=level + " user dust",
-                            max_outliers=False, min_outliers=True, multiplier=15)
+                            max_outliers=False, min_outliers=True, multiplier=15,print_excl=False)
                         report_data[test][level]["Dust on hands"] = outliers_iqr(
-                            report_data[test][level]["Dust on hands"], level + " user dust", multiplier=5)
+                            report_data[test][level]["Dust on hands"], level + " user dust", multiplier=5,print_excl=False)
                     df.at[level, "Dust on hands"] = round(sum(report_data[test][level]["Dust on hands"]) / float(
                         len(report_data[test][level]["Dust on hands"])), 1)
 
             # Печать
-            print("Total users group", test, users_count[test])
-            print(df.to_string())
+            #print("Total users group", test, users_count[test])
+            #print(df.to_string())
 
             df.to_excel(excel_writer=writer, sheet_name=test)
-            writer.save()
+            try_save_writer(writer)
+
+            return result_files

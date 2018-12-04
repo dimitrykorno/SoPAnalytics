@@ -1,14 +1,14 @@
 import pandas as pd
 from datetime import datetime
-from Classes.Events import *
-from Data import Parse
-from Classes.User import User
+from sop_analytics.Classes.Events import *
+from sop_analytics.Data import Parse
+from sop_analytics.Classes.User import User
 from report_api.Report import Report
 from report_api.Utilities.Utils import time_count
-from Utilities.Colors import Colors
-from Utilities.Targets import Targets
-from Utilities.Super import Supers
-from Utilities.Quests import get_levels, get_next_locquest
+from sop_analytics.Utilities.Colors import Colors
+from sop_analytics.Utilities.Targets import Targets
+from sop_analytics.Utilities.Super import Supers
+from sop_analytics.Utilities.Quests import get_levels, get_next_locquest
 
 app = "sop"
 

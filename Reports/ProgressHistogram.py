@@ -1,13 +1,9 @@
-from matplotlib import pyplot as plt
-import math
-from itertools import chain
-from Classes.Events import *
-from Data import Parse
-from Classes.User import User
-from Classes.Events import *
+from sop_analytics.Data import Parse
+from sop_analytics.Classes.User import User
+from sop_analytics.Classes.Events import *
 from report_api.Report import Report
 from report_api.Utilities.Utils import time_count, draw_subplot
-from Utilities.Quests import loc_quest_level, get_locquest
+from sop_analytics.Utilities.Quests import loc_quest_level, get_locquest
 
 app = "sop"
 

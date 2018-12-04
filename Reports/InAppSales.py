@@ -1,8 +1,8 @@
 from report_api.CommonReports import InAppSales
 from report_api.Utilities.Utils import time_count
-from Utilities import Shop
-from Data import Parse
-from Classes.User import User
+from sop_analytics.Utilities import Shop
+from sop_analytics.Data import Parse
+from sop_analytics.Classes.User import User
 import os
 
 @time_count

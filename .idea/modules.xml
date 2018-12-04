@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/GitSoPAnalytics.iml" filepath="$PROJECT_DIR$/.idea/GitSoPAnalytics.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/SoPAnalytics.iml" filepath="$PROJECT_DIR$/.idea/SoPAnalytics.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/sop_analytics.iml" filepath="$PROJECT_DIR$/.idea/sop_analytics.iml" />
     </modules>
   </component>
 </project>

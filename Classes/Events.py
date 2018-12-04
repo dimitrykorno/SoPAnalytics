@@ -1,4 +1,4 @@
-from Utilities.Tutorials import get_tutorial_name
+from sop_analytics.Utilities.Tutorials import get_tutorial_name
 from report_api.Classes.Events import *
 
 indent = 20

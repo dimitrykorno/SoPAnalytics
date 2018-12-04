@@ -1,8 +1,8 @@
 import pandas as pd
-from Classes.PatternPresets import *
-from Classes.Events import *
-from Data import Parse
-from Classes.User import User
+from sop_analytics.Classes.PatternPresets import *
+from sop_analytics.Classes.Events import *
+from sop_analytics.Data import Parse
+from sop_analytics.Classes.User import User
 from report_api.Report import Report
 from report_api.Utilities.Utils import time_count
 

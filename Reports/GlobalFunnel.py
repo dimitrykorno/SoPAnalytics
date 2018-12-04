@@ -1,9 +1,9 @@
 import pandas as pd
-from Utilities.Quests import *
+from sop_analytics.Utilities.Quests import *
 
-from Classes.Events import *
-from Data import Parse
-from Classes.User import User
+from sop_analytics.Classes.Events import *
+from sop_analytics.Data import Parse
+from sop_analytics.Classes.User import User
 from report_api.Report import Report
 from datetime import datetime
 from report_api.Utilities.Utils import time_count, sigma, get_timediff

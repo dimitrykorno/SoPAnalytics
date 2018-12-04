@@ -1,10 +1,10 @@
 from report_api.Utilities.Utils import time_count, outliers_iqr
 import pandas as pd
-from Utilities.Quests import get_locquests_list, get_locquest, get_next_locquest
+from sop_analytics.Utilities.Quests import get_locquests_list, get_locquest, get_next_locquest
 from matplotlib import pyplot as plt
-from Classes.Events import *
-from Data import Parse
-from Classes.User import User
+from sop_analytics.Classes.Events import *
+from sop_analytics.Data import Parse
+from sop_analytics.Classes.User import User
 from report_api.Report import Report
 
 app = "sop"

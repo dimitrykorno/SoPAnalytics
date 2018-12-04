@@ -1,1 +1,1 @@
-name = "report_api"
+name = "sop_analytics"

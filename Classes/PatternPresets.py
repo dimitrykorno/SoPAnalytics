@@ -1,5 +1,5 @@
 from report_api.Pattern import Pattern
-from Classes.Events import *
+from sop_analytics.Classes.Events import *
 
 
 class PatternBuyDecoration(Pattern):

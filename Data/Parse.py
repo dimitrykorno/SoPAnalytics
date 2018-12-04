@@ -9,13 +9,13 @@ import re
 import traceback
 from report_api import Report
 
-from Classes.Events import *
-from Classes.Match3Objects import *
-from Utilities.Colors import *
-from Utilities.Super import *
-from Utilities.Targets import *
-from Utilities.Tutorials import tutorials
-from Utilities.Shop import get_price
+from sop_analytics.Classes.Events import *
+from sop_analytics.Classes.Match3Objects import *
+from sop_analytics.Utilities.Colors import *
+from sop_analytics.Utilities.Super import *
+from sop_analytics.Utilities.Targets import *
+from sop_analytics.Utilities.Tutorials import tutorials
+from sop_analytics.Utilities.Shop import get_price
 
 
 def parse_event(event_name, event_json, datetime):
