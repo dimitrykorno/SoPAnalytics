@@ -5,7 +5,7 @@ from sop_analytics.Classes.Events import *
 from sop_analytics.Data import Parse
 from sop_analytics.Classes.User import User
 from report_api.Report import Report
-from report_api.Utilities.Utils import time_count
+from report_api.Utilities.Utils import time_count,check_arguments,try_save_writer,check_folder
 
 app = "sop"
 
@@ -30,6 +30,14 @@ def new_report(game_point="0030",
     :param game_point: Номер квеста или уровня
     :return:
     """
+    errors = check_arguments(locals())
+    result_files = []
+    folder_dest = "Results/Подробный анализ уровня/"
+    check_folder(folder_dest)
+
+    if errors:
+        return errors, result_files
+
     # БАЗА ДАННЫХ
     for os_str in os_list:
         # БАЗА ДАННЫХ
@@ -103,10 +111,12 @@ def new_report(game_point="0030",
         # Вывод
         df.fillna("", inplace=True)
         print(df.to_string())
-        writer = pd.ExcelWriter(
-            "Results/Подробный анализ уровня/DetailedFunnel " + str(min_version) + " " + os_str + "+.xlsx")
+        filename=folder_dest+"DetailedFunnel " + str(min_version) + " " + os_str + "+.xlsx"
+        writer = pd.ExcelWriter(filename)
         df.to_excel(excel_writer=writer)
-        writer.save()
+        try_save_writer(writer,filename)
+        result_files.append(filename)
+    return errors,result_files
 
 
 def corresponding_orders(user_events):

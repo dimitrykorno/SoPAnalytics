@@ -4,7 +4,7 @@ from sop_analytics.Classes.Events import *
 from sop_analytics.Data import Parse
 from sop_analytics.Classes.User import User
 from report_api.Report import Report
-from report_api.Utilities.Utils import time_count
+from report_api.Utilities.Utils import time_count,check_arguments,check_folder,try_save_writer
 
 app = "sop"
 
@@ -18,7 +18,18 @@ def new_report(os_list=["iOS"],
                max_version=None,
                countries_list=[],
                start=1,
-               quantity=121):
+               quantity=200):
+    errors = check_arguments(locals())
+    result_files = []
+    folder_dest = "Results/Использование бонусов/"
+    check_folder(folder_dest)
+
+    if errors:
+        return errors, result_files
+    if start is None:
+        start=1
+    if quantity is None:
+        quantity=200
     for os_str in os_list:
         # БАЗА ДАННЫХ
         Report.set_app_data(parser=Parse, user_class=User, event_class=Event,
@@ -116,7 +127,9 @@ def new_report(os_list=["iOS"],
             df.at[level,"Spent"]=df.at[level,"Hammer"]*hammer_price+df.at[level,"First"]*first_bonus_price+df.at[level,"Second"]*second_bonus_price+df.at[level,"Third"]*third_bonus_price+df.at[level,"Buy steps"]*steps_price
         # Вывод
         print(df.to_string())
-        writer = pd.ExcelWriter(
-            "Results/Использование бонусов/Level spend coins " + str(start) + "-" + str(start + quantity - 1) + ".xlsx")
+        filename=folder_dest+"Level spend coins " + str(start) + "-" + str(start + quantity - 1) + ".xlsx"
+        writer = pd.ExcelWriter(filename)
         df.to_excel(excel_writer=writer)
-        writer.save()
+        try_save_writer(writer,filename)
+        result_files.append(filename)
+    return errors,filename

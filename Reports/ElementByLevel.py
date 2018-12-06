@@ -1,4 +1,4 @@
-from report_api.Utilities.Utils import time_count, try_save_writer
+from report_api.Utilities.Utils import time_count, try_save_writer, check_arguments, check_folder
 import pandas as pd
 from sop_analytics.Utilities.Quests import get_level_names
 from sop_analytics.Utilities.Colors import Colors
@@ -22,6 +22,14 @@ def new_report(os_list=["iOS"],
                min_version="7.4",
                max_version=None,
                countries_list=[]):
+    errors = check_arguments(locals())
+    result_files = []
+    folder_dest = "Results/Анализ элементов на уровне/"
+    check_folder(folder_dest)
+
+    if errors:
+        return errors, result_files
+
     for i in range(len(elements)):
         if Supers.get_super(elements[i]):
             continue
@@ -37,7 +45,11 @@ def new_report(os_list=["iOS"],
             continue
         else:
             print("Элемента нет в базе:", elements[i], ". Это может вызвать ошибки.")
-
+            errors += "Элемента нет в базе: " + str(elements[i]) + ". Это может вызвать ошибки.\n"
+    if not levels_start:
+        levels_start=1
+    if not levels_quant:
+        levels_quant=200
     # БАЗА ДАННЫХ
     for os_str in os_list:
         # БАЗА ДАННЫХ
@@ -76,7 +88,7 @@ def new_report(os_list=["iOS"],
         start_bonuses = (0, 0, 0)
         start_bonus_names = (
             ["Super_BigLightning_h", "Super_BigLightning_v"], ["StarBonus"], ["StarBonus", "Super_FireSpark"])
-        in_game_bonus_names=["Hammer"]
+        in_game_bonus_names = ["Hammer"]
         while Report.get_next_event():
 
             if isinstance(Report.current_event, Match3StartGame):
@@ -108,8 +120,8 @@ def new_report(os_list=["iOS"],
                         taken_bonuses += start_bonus_names[i]
                         # print("new taken bonuses", taken_bonuses)
                 for i in range(1):
-                    if Report.current_event.ingame_bonuses==1:
-                        taken_bonuses+=in_game_bonus_names[i]
+                    if Report.current_event.ingame_bonuses == 1:
+                        taken_bonuses += in_game_bonus_names[i]
                 # добавляем категрию с текущей группой аб-теста (А, если теста нет)
                 if test_name not in report_data:
                     add_test(test_name)
@@ -132,7 +144,7 @@ def new_report(os_list=["iOS"],
                     report_data["total"][current_level][element].append(Report.current_event.ingame_bonuses)
                     # print(sum(report_data["total"][current_level][element]))
 
-        filename = "Results/Анализ элементов на уровне/" + os_str + " " + min_version + " " + ",".join(
+        filename = folder_dest + os_str + " " + min_version + " " + ",".join(
             elements) + " " + min(levels) + "-" + max(
             levels) + ".xlsx"
         writer = pd.ExcelWriter(filename)
@@ -151,3 +163,5 @@ def new_report(os_list=["iOS"],
 
             df.to_excel(writer, sheet_name=test_name)
         try_save_writer(writer, filename)
+        result_files.append(filename)
+    return errors, filename

@@ -20,7 +20,7 @@ from sop_analytics.Utilities.Shop import get_price
 
 def parse_event(event_name, event_json, datetime):
     # заменяем двойные двойные кавычки на одинакрные двойные кавычки (да, тупо...)
-    event_json = re.sub(r'""', r'"', event_json)
+    #event_json = re.sub(r'""', r'"', event_json)
 
     try:
         parameters = json.loads(event_json)
@@ -28,7 +28,7 @@ def parse_event(event_name, event_json, datetime):
         Report.Report.not_found.add("Json error:" + event_name + " " + event_json)
         return None
     except Exception as er:
-        print(er.args)
+        print("parse error",er.args)
         print(event_name, event_json)
 
         return None

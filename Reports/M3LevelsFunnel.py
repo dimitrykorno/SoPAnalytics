@@ -7,8 +7,9 @@ from sop_analytics.Data import Parse
 from sop_analytics.Classes.User import User
 from report_api.Report import Report
 from datetime import datetime
-from report_api.Utilities.Utils import time_count, outliers_iqr, try_save_writer, check_folder
+from report_api.Utilities.Utils import time_count, outliers_iqr, try_save_writer, check_folder, check_arguments
 import os
+
 app = "sop"
 
 
@@ -23,7 +24,15 @@ def new_report(os_list=["iOS"],
                start=1,
                quantity=100,
                days_left=None,
-               days_max=None, ):
+               days_max=None):
+    errors = check_arguments(locals())
+    result_files = []
+    folder_dest = "Results/Отчёт по качеству уровней/"
+    check_folder(folder_dest)
+
+    if errors:
+        return errors, result_files
+
     if not days_max:
         days_max = 365
     days_max = int(days_max)
@@ -36,6 +45,15 @@ def new_report(os_list=["iOS"],
             days_left = 3
         else:
             days_left = 999
+    if isinstance(period_start, str):
+        period_start = datetime.strptime(period_start, "%Y-%m-%d").date()
+    if isinstance(period_end, str):
+        period_end = datetime.strptime(period_end, "%Y-%m-%d").date()
+    if min_version:
+        min_version.replace(",", ".")
+    if max_version:
+        max_version.replace(",", ".")
+
 
     for os_str in os_list:
         # БАЗА ДАННЫХ
@@ -171,7 +189,8 @@ def new_report(os_list=["iOS"],
             else:
                 user = Report.current_user
             # если игрок попал в группу АБ-теста, мы не добавляем его в группу А
-            for test_name in [group for group in user_test_groups if not (group == "A" and len(user_test_groups) > 1)]:
+            for test_name in [group for group in user_test_groups if
+                              not (group == "A" and len(user_test_groups) > 1)]:
                 if test_name not in report_data:
                     add_new_test(test_name)
                     users_count[test_name] = 0
@@ -212,6 +231,7 @@ def new_report(os_list=["iOS"],
                     if started_levels:
                         for level3 in list(started_levels - finished_levels):
                             report_data[test_name][level3][left_par] += 1
+
         add_new_test("total")
         while Report.get_next_event():
 
@@ -258,11 +278,8 @@ def new_report(os_list=["iOS"],
 
         flush_user_data()
 
-        result_files=[]
-        folder_dest="Results/Отчёт по качеству уровней/"
-        check_folder(folder_dest)
-        file_name=folder_dest+"Levels " + str(start) + "-" + str(
-                start + quantity - 1) + " " + str(min_version) + " " + os_str + ".xlsx"
+        file_name = folder_dest + "Levels " + str(start) + "-" + str(
+            start + quantity - 1) + " " + str(min_version) + " " + os_str + ".xlsx"
         result_files.append(os.path.abspath(file_name))
         writer = pd.ExcelWriter(file_name)
 
@@ -291,15 +308,17 @@ def new_report(os_list=["iOS"],
                 # проверка на выбросы в попытках
                 if len(report_data[test][level]["Attempts"]) > 0:
                     report_data[test][level]["Attempts"] = outliers_iqr(report_data[test][level]["Attempts"],
-                                                                        level + " attempts", multiplier=10,print_excl=False)
+                                                                        level + " attempts", multiplier=10,
+                                                                        print_excl=False)
                     df.at[level, "Attempts"] = round(
-                        1 - 1 / (sum(report_data[test][level]["Attempts"]) / len(report_data[test][level]["Attempts"])),
+                        1 - 1 / (
+                        sum(report_data[test][level]["Attempts"]) / len(report_data[test][level]["Attempts"])),
                         3) * 100
 
                 if len(report_data[test][level]["Clean Attempts"]) > 0:
                     report_data[test][level]["Clean Attempts"] = outliers_iqr(
                         report_data[test][level]["Clean Attempts"], level + " clean attempts",
-                        multiplier=30,print_excl=False)
+                        multiplier=30, print_excl=False)
                     df.at[level, "Clean Attempts"] = round(
                         1 - 1 / (sum(report_data[test][level]["Clean Attempts"]) / len(
                             report_data[test][level]["Clean Attempts"])),
@@ -309,7 +328,8 @@ def new_report(os_list=["iOS"],
                 if len(report_data[test][level]["Dust"]) > 0:
                     if len(report_data[test][level]["Dust"]) > 10:
                         report_data[test][level]["Dust"] = outliers_iqr(report_data[test][level]["Dust"],
-                                                                        level + " collected dust", multiplier=5,print_excl=False)
+                                                                        level + " collected dust", multiplier=5,
+                                                                        print_excl=False)
                     df.at[level, "Dust"] = round(
                         sum(report_data[test][level]["Dust"]) / float(len(report_data[test][level]["Dust"])), 1)
 
@@ -317,17 +337,18 @@ def new_report(os_list=["iOS"],
                     if len(report_data[test][level]["Dust on hands"]) > 10:
                         report_data[test][level]["Dust on hands"] = outliers_iqr(
                             data_list=report_data[test][level]["Dust on hands"], where=level + " user dust",
-                            max_outliers=False, min_outliers=True, multiplier=15,print_excl=False)
+                            max_outliers=False, min_outliers=True, multiplier=15, print_excl=False)
                         report_data[test][level]["Dust on hands"] = outliers_iqr(
-                            report_data[test][level]["Dust on hands"], level + " user dust", multiplier=5,print_excl=False)
+                            report_data[test][level]["Dust on hands"], level + " user dust", multiplier=5,
+                            print_excl=False)
                     df.at[level, "Dust on hands"] = round(sum(report_data[test][level]["Dust on hands"]) / float(
                         len(report_data[test][level]["Dust on hands"])), 1)
 
             # Печать
-            #print("Total users group", test, users_count[test])
-            #print(df.to_string())
+            # print("Total users group", test, users_count[test])
+            # print(df.to_string())
 
             df.to_excel(excel_writer=writer, sheet_name=test)
             try_save_writer(writer)
 
-            return result_files
+    return errors, result_files

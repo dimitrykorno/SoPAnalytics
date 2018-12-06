@@ -6,7 +6,7 @@ from sop_analytics.Data import Parse
 from sop_analytics.Classes.User import User
 from report_api.Report import Report
 from datetime import datetime
-from report_api.Utilities.Utils import time_count, sigma, get_timediff
+from report_api.Utilities.Utils import time_count, sigma, get_timediff,check_folder,check_arguments,try_save_writer
 
 app = "sop"
 
@@ -34,6 +34,15 @@ def new_report(os_list=["iOS"],
     :param days_left: кол-во дней, после которого человек отвалился
     :return:
     """
+    errors = check_arguments(locals())
+    result_files = []
+    folder_dest = "Results/Глобальные отвалы/"
+    check_folder(folder_dest)
+
+    if errors:
+        return errors, result_files
+    if days_left is None:
+        days_left=365
 
     for os_str in os_list:
         # БАЗА ДАННЫХ
@@ -252,6 +261,9 @@ def new_report(os_list=["iOS"],
                 value = level[7:]
                 new_level = "Start    " + value
                 df = df.rename(index={level: new_level})
-        writer = pd.ExcelWriter("Results/Глобальные отвалы/QuestsFunnel " + str(min_version) + " " + os_str + ".xlsx")
+        filename=folder_dest+"QuestsFunnel " + str(min_version) + " " + os_str + ".xlsx"
+        writer = pd.ExcelWriter(filename)
         df.to_excel(excel_writer=writer, sheet_name=str(min_version))
-        writer.save()
+        try_save_writer(writer,filename)
+        result_files.append(filename)
+    return errors, result_files

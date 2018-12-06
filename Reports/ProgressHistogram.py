@@ -2,7 +2,7 @@ from sop_analytics.Data import Parse
 from sop_analytics.Classes.User import User
 from sop_analytics.Classes.Events import *
 from report_api.Report import Report
-from report_api.Utilities.Utils import time_count, draw_subplot
+from report_api.Utilities.Utils import time_count, draw_subplot,check_arguments,check_folder,try_save_writer
 from sop_analytics.Utilities.Quests import loc_quest_level, get_locquest
 
 app = "sop"
@@ -13,17 +13,27 @@ app = "sop"
 def new_report(os_list=["iOS"],
                max_level=60,
                days=[0, 1, 2, 3, 4],
-               app_version=["7.5"],
+               app_versions=["7.5"],
                period_start="2018-11-15",
                period_end="2018-11-18",
                countries_list=[],
                users_last_day=False):
+    errors = check_arguments(locals())
+    result_files = []
+    folder_dest = "Results/Гистограма прогресса/"
+    check_folder(folder_dest)
+
+    if errors:
+        return errors, result_files
+
+    if max_level is None:
+        max_level=100
     days = list(map(int, days))
-    if not isinstance(app_version, list):
-        app_version = list(app_version)
+    if not isinstance(app_versions, list):
+        app_versions = list(app_versions)
     progress_levels = {}
     progress_quests = {}
-    users = dict.fromkeys(app_version, 0)
+    users = dict.fromkeys(app_versions, 0)
     # с 1 (0, чтобы точнее были деления) по n (включительно) + 3 финишера (15?)
     levels = list(range(0, max_level + 2))
     quests = []
@@ -40,7 +50,7 @@ def new_report(os_list=["iOS"],
             break
 
     for os_str in os_list:
-        for version in app_version:
+        for version in app_versions:
             # БАЗА ДАННЫХ
             Report.set_app_data(parser=Parse, user_class=User, event_class=Event,
                                 os=os_str, app=app, user_status_check=False)
@@ -134,6 +144,8 @@ def new_report(os_list=["iOS"],
             period_end)
         if users_last_day:
             title += " last day"
-        for version in app_version:
+        for version in app_versions:
             draw_subplot(levels, progress_levels[version], plot_type="bar", additional_labels=["Start", "Fail", "Finish"], show=True, colors=["y", "r", "g"], title=title+" "+version,
-                  size=(2, 1), folder="Results/Гистограма прогресса/")
+                  size=(2, 1), folder=folder_dest)
+        result_files.append(folder_dest+title)
+    return errors, result_files

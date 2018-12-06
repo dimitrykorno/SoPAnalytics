@@ -4,7 +4,7 @@ from sop_analytics.Classes.Events import *
 from sop_analytics.Data import Parse
 from sop_analytics.Classes.User import User
 from report_api.Report import Report
-from report_api.Utilities.Utils import time_count
+from report_api.Utilities.Utils import time_count,check_folder,check_arguments,try_save_writer
 from sop_analytics.Utilities.Colors import Colors
 from sop_analytics.Utilities.Targets import Targets
 from sop_analytics.Utilities.Super import Supers
@@ -22,7 +22,17 @@ def new_report(os_list=["iOS"],
                max_version=None,
                countries_list=[],
                level_num="0030",
-               days_left=1):
+               days_left=7):
+    errors = check_arguments(locals())
+    result_files = []
+    folder_dest = "Results/Анализ прохождения уровня/"
+    check_folder(folder_dest)
+
+    if errors:
+        return errors, result_files
+
+    if days_left is None:
+        days_left=365
     for os_str in os_list:
         # БАЗА ДАННЫХ
         Report.set_app_data(parser=Parse, user_class=User, event_class=Event,
@@ -188,10 +198,11 @@ def new_report(os_list=["iOS"],
         # Вывод
         df_detailed_play.fillna("", inplace=True)
         print(df_detailed_play.to_string())
-        writer = pd.ExcelWriter(
-            "Results/Анализ прохождения уровня/Detailed level " + str(level_num) + " " + os_str + ".xlsx")
+        filename=folder_dest+ "Detailed level " + str(level_num) + " " + os_str + ".xlsx"
+        writer = pd.ExcelWriter(filename)
         df_detailed_play.to_excel(excel_writer=writer)
-        writer.save()
+        try_save_writer(writer,filename)
+        result_files.append(filename)
 
         for fails_count in fails_data:
             df_fails_funnel.loc[fails_count, "Users"] = fails_data[fails_count]["Users"]
@@ -205,10 +216,13 @@ def new_report(os_list=["iOS"],
                 fails_data[fails_count]["Played next quest"]) + " (" + str(
                 round(fails_data[fails_count]["Played next quest"] * 100 / fails_data[fails_count]["Completed"])) + "%)"
         print(df_fails_funnel.to_string())
-        writer = pd.ExcelWriter(
-            "Results/Анализ прохождения уровня/Воронка фейлов " + str(level_num) + " " + os_str + ".xlsx")
+        filename=folder_dest+"Воронка фейлов " + str(level_num) + " " + os_str + ".xlsx"
+        writer = pd.ExcelWriter(filename)
         df_fails_funnel.to_excel(excel_writer=writer)
-        writer.save()
+        try_save_writer(writer,filename)
+        result_files.append(filename)
+
+    return errors,result_files
 
 
 def add_elements(df, index, event):

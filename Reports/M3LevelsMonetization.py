@@ -4,7 +4,7 @@ from sop_analytics.Classes.Events import *
 from sop_analytics.Data import Parse
 from sop_analytics.Classes.User import User
 from report_api.Report import Report
-from report_api.Utilities.Utils import time_count
+from report_api.Utilities.Utils import time_count,check_folder,check_arguments,try_save_writer
 
 app = "sop"
 
@@ -19,6 +19,13 @@ def levels_monetization(start=1,
                         min_version=None,
                         max_version=None,
                         countries_list=[]):
+    errors = check_arguments(locals())
+    result_files = []
+    folder_dest = "Results/Монетизация уровней/"
+    check_folder(folder_dest)
+
+    if errors:
+        return errors, result_files
 
     levels = get_level_names(start, quantity)
     for os_str in os_list:
@@ -65,7 +72,8 @@ def levels_monetization(start=1,
                 countries[country][level][quant] += 1
                 countries[country][level][money] += price
 
-        writer = pd.ExcelWriter("Sales " + str(start) + "-" + str(start + quantity - 1) + " " + os_str + ".xlsx")
+        filename=folder_dest+"Sales " + str(start) + "-" + str(start + quantity - 1) + " " + os_str + ".xlsx"
+        writer = pd.ExcelWriter(filename)
         for country in countries:
             df = pd.DataFrame(index=levels,
                               columns=["Sum", "100 quant", "100 money",
@@ -87,4 +95,5 @@ def levels_monetization(start=1,
                                                 "2500 quant", "Money",
                                                 "5300 quant", "Money",
                                                 "11000 quant", "Money"])
-        writer.save()
+        try_save_writer(writer,filename)
+    return errors,filename

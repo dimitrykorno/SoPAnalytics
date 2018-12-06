@@ -3,7 +3,7 @@ from sop_analytics.Data import Parse
 from sop_analytics.Classes.User import User
 from report_api.Report import Report
 from datetime import date
-from report_api.Utilities.Utils import time_count
+from report_api.Utilities.Utils import time_count,check_folder,check_arguments
 
 app = "sop"
 
@@ -20,6 +20,14 @@ def new_report(short_info=True,
                min_version=None,
                max_version=None,
                countries_list=[]):
+    errors = check_arguments(locals())
+    result_files = []
+    folder_dest = "Results/Печать сессий/"
+    check_folder(folder_dest)
+
+    if errors:
+        return errors, result_files
+
     # БАЗА ДАННЫХ
     for os_str in os_list:
         # БАЗА ДАННЫХ
@@ -44,10 +52,13 @@ def new_report(short_info=True,
         output_file_returned = None
         output_file_not_returned = None
         if not first_session:
-            output_file = open("Results/Печать сессий/UserSessions.txt", "w")
+            filename=[folder_dest+os_str+" UserSessions.txt"]
+            output_file = open(filename[0], "w")
         else:
-            output_file_returned = open("Results/Печать сессий/UserSessions.txt", "w")
-            output_file_not_returned = open("Results/Печать сессий/UserSessions.txt", "w")
+            filename=[folder_dest+os_str+" UserSessions Вернувшиеся после первой сессии.txt",folder_dest+os_str+" UserSessions Не вернувшиеся после первой сессии.txt"]
+            output_file_returned = open(filename[0], "w")
+            output_file_not_returned = open(filename[1], "w")
+        result_files+=filename
 
         # ПАРАМЕТРЫ
         returned_user = False
@@ -106,3 +117,4 @@ def new_report(short_info=True,
                         Report.current_event.datetime) + " " + Report.current_event.to_short_string() + "\n"
                 else:
                     events_string += str(Report.current_event.datetime) + " " + Report.current_event.to_string() + "\n"
+    return errors, result_files

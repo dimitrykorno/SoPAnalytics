@@ -1,4 +1,4 @@
-from report_api.Utilities.Utils import time_count, outliers_iqr
+from report_api.Utilities.Utils import time_count, outliers_iqr, check_folder, try_save_writer, check_arguments
 import pandas as pd
 from sop_analytics.Utilities.Quests import get_locquests_list, get_locquest, get_next_locquest
 from matplotlib import pyplot as plt
@@ -18,6 +18,14 @@ def new_report(os_list=["iOS"],
                min_version=None,
                max_version=None,
                countries_list=[]):
+    errors = check_arguments(locals())
+    result_files = []
+    folder_dest = "Results/Динамика пыли/"
+    check_folder(folder_dest)
+
+    if errors:
+        return errors, result_files
+
     def array_average(array, exclude_outliers=True, multiplier=5.0, name=None):
         if exclude_outliers:
             array = outliers_iqr(array, multiplier=multiplier, where=name, adaptive=True)
@@ -264,9 +272,11 @@ def new_report(os_list=["iOS"],
         df.fillna(0, inplace=True)
         pd.options.display.max_colwidth = 150
         print(df.to_string())
-        writer = pd.ExcelWriter("Results/Динамика пыли/DustDynamics " + str(min_version) + " " + os_str + ".xlsx")
+        filename=folder_dest+"DustDynamics " + str(min_version) + " " + os_str + ".xlsx"
+        writer = pd.ExcelWriter(filename)
         df.to_excel(excel_writer=writer)
-        writer.save()
+        try_save_writer(writer,filename)
+        result_files.append(filename)
 
         # Рисуем гистограммы
         plt.figure(1, figsize=(18, 8))
@@ -283,8 +293,10 @@ def new_report(os_list=["iOS"],
             tick.set_rotation(90)
         ax.legend()
         plt.title("Тратящие пыль")
-        plt.savefig("Results/Динамика пыли/Dust Dynamics плат" + str(min_version) + ".png")
-        plt.show()
+        filename=folder_dest+"Dust Dynamics плат" + str(min_version) + ".png"
+        plt.savefig(filename)
+        #plt.show()
+        result_files.append(filename)
 
         plt.figure(2, figsize=(18, 8))
         ax = plt.subplot(111)
@@ -297,5 +309,8 @@ def new_report(os_list=["iOS"],
             tick.set_rotation(90)
         ax.legend()
         plt.title("Не тратящие пыль")
-        plt.savefig("Results/Динамика пыли/Dust Dynamics не плат" + str(min_version) + ".png")
-        plt.show()
+        filename=folder_dest+"Dust Dynamics не плат" + str(min_version) + ".png"
+        plt.savefig(filename)
+        #plt.show()
+        result_files.append(filename)
+    return errors, result_files
