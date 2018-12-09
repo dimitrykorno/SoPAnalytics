@@ -1,12 +1,15 @@
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib import pyplot as plt
 from report_api.Utilities.Utils import time_count, outliers_iqr, check_folder, try_save_writer, check_arguments
 import pandas as pd
 from sop_analytics.Utilities.Quests import get_locquests_list, get_locquest, get_next_locquest
-from matplotlib import pyplot as plt
+
 from sop_analytics.Classes.Events import *
 from sop_analytics.Data import Parse
 from sop_analytics.Classes.User import User
 from report_api.Report import Report
-
+import os
 app = "sop"
 
 
@@ -21,6 +24,8 @@ def new_report(os_list=["iOS"],
     errors = check_arguments(locals())
     result_files = []
     folder_dest = "Results/Динамика пыли/"
+    if hasattr(new_report,'user'):
+        folder_dest+=str(new_report.user)+"/"
     check_folder(folder_dest)
 
     if errors:
@@ -276,7 +281,7 @@ def new_report(os_list=["iOS"],
         writer = pd.ExcelWriter(filename)
         df.to_excel(excel_writer=writer)
         try_save_writer(writer,filename)
-        result_files.append(filename)
+        result_files.append(os.path.abspath(filename))
 
         # Рисуем гистограммы
         plt.figure(1, figsize=(18, 8))
@@ -293,10 +298,10 @@ def new_report(os_list=["iOS"],
             tick.set_rotation(90)
         ax.legend()
         plt.title("Тратящие пыль")
-        filename=folder_dest+"Dust Dynamics плат" + str(min_version) + ".png"
+        filename=folder_dest+"Dust Dynamics paying " + str(min_version) + " " + os_str+ ".png"
         plt.savefig(filename)
         #plt.show()
-        result_files.append(filename)
+        result_files.append(os.path.abspath(filename))
 
         plt.figure(2, figsize=(18, 8))
         ax = plt.subplot(111)
@@ -309,8 +314,8 @@ def new_report(os_list=["iOS"],
             tick.set_rotation(90)
         ax.legend()
         plt.title("Не тратящие пыль")
-        filename=folder_dest+"Dust Dynamics не плат" + str(min_version) + ".png"
+        filename=folder_dest+"Dust Dynamics not paying " + str(min_version) + ".png"
         plt.savefig(filename)
         #plt.show()
-        result_files.append(filename)
+        result_files.append(os.path.abspath(filename))
     return errors, result_files

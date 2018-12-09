@@ -8,7 +8,7 @@ from sop_analytics.Classes.Events import *
 from sop_analytics.Data import Parse
 from sop_analytics.Classes.User import User
 from report_api.Report import Report
-
+import os
 app = "sop"
 
 
@@ -25,6 +25,8 @@ def new_report(os_list=["iOS"],
     errors = check_arguments(locals())
     result_files = []
     folder_dest = "Results/Анализ элементов на уровне/"
+    if hasattr(new_report,'user'):
+        folder_dest+=str(new_report.user)+"/"
     check_folder(folder_dest)
 
     if errors:
@@ -163,5 +165,5 @@ def new_report(os_list=["iOS"],
 
             df.to_excel(writer, sheet_name=test_name)
         try_save_writer(writer, filename)
-        result_files.append(filename)
-    return errors, filename
+        result_files.append(os.path.abspath(filename))
+    return errors, result_files

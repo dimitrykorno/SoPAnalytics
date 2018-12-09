@@ -4,7 +4,7 @@ from sop_analytics.Classes.Events import *
 from report_api.Report import Report
 from report_api.Utilities.Utils import time_count, draw_subplot,check_arguments,check_folder,try_save_writer
 from sop_analytics.Utilities.Quests import loc_quest_level, get_locquest
-
+import os
 app = "sop"
 
 
@@ -21,6 +21,8 @@ def new_report(os_list=["iOS"],
     errors = check_arguments(locals())
     result_files = []
     folder_dest = "Results/Гистограма прогресса/"
+    if hasattr(new_report,'user'):
+        folder_dest+=str(new_report.user)+"/"
     check_folder(folder_dest)
 
     if errors:
@@ -134,18 +136,17 @@ def new_report(os_list=["iOS"],
             if previous_m3_event:
                 flush_user_info()
 
-            print("Version", version, "Total users:", Report.total_users)
+            #print("Version", version, "Total users:", Report.total_users)
             users[version] = Report.total_users
-            for day in days:
-                print("day:", day, progress_levels[version][str(day) + " day"])
+            # for day in days:
+            #     print("day:", day, progress_levels[version][str(day) + " day"])
 
 
-        title = os_str+ " Гистограма прогресса " + str(period_start) + "-" + str(
-            period_end)
+        title = os_str+ " Progress histogram"
         if users_last_day:
             title += " last day"
         for version in app_versions:
-            draw_subplot(levels, progress_levels[version], plot_type="bar", additional_labels=["Start", "Fail", "Finish"], show=True, colors=["y", "r", "g"], title=title+" "+version,
+            result_files+=draw_subplot(levels, progress_levels[version], plot_type="bar", additional_labels=["Start", "Fail", "Finish"], colors=["y", "r", "g"], title=title+" "+version,
                   size=(2, 1), folder=folder_dest)
-        result_files.append(folder_dest+title)
+
     return errors, result_files

@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('Agg')
 from report_api.Menu import Menu
 from sop_analytics.Reports import M3LevelsFunnel, M3DetailedLevel, GlobalFunnel, UsersSessions, M3LevelBonuses, \
     LastEventHistogram, \
@@ -52,5 +54,5 @@ def parse_value(value, default, type):
     return Menu.parse_value(value, default, type)
 
 
-def execute_report(rep_num, settings):
-    return Menu.execute_report(reports, rep_num, settings)
+def execute_report(user,rep_num, settings):
+    return Menu.execute_report(reports, rep_num, settings,user)

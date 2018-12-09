@@ -5,7 +5,7 @@ from sop_analytics.Data import Parse
 from sop_analytics.Classes.User import User
 from report_api.Report import Report
 from report_api.Utilities.Utils import time_count,check_arguments,check_folder,try_save_writer
-
+import os
 app = "sop"
 
 
@@ -22,6 +22,8 @@ def new_report(os_list=["iOS"],
     errors = check_arguments(locals())
     result_files = []
     folder_dest = "Results/Использование бонусов/"
+    if hasattr(new_report,'user'):
+        folder_dest+=str(new_report.user)+"/"
     check_folder(folder_dest)
 
     if errors:
@@ -131,5 +133,5 @@ def new_report(os_list=["iOS"],
         writer = pd.ExcelWriter(filename)
         df.to_excel(excel_writer=writer)
         try_save_writer(writer,filename)
-        result_files.append(filename)
-    return errors,filename
+        result_files.append(os.path.abspath(filename))
+    return errors,result_files

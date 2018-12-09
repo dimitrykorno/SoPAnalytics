@@ -35,20 +35,25 @@ def parse_event(event_name, event_json, datetime):
     try:
         # попытка парсинга события
         new_event = start_parse(event_name, parameters, datetime)
+        # найденная ошибка в событии/неправильно сформулированное событие
+        if new_event is False:
+            return None
         if new_event is None:
             # Если имя события неизвестно, то это тест.
             test_name = event_name
             event_name = list(parameters)[0]
             parameters = parameters[event_name]
             new_event = start_parse(event_name, parameters, datetime)
+            if new_event is False:
+                return None
             if not new_event:
                 raise ValueError("Event parse: Unknown event name:", event_name, datetime, " May be a test:", test_name)
             new_event.set_ab_test_name(test_name)
 
     except Exception as er:
 
-        Report.Report.not_found.add(er.args + " Error: " + event_name + " Json: " + event_json)
-        Report.Report.not_found.add(traceback.extract_stack())
+        Report.Report.not_found.add(str(er.args) + " Error: " + event_name + " Json: " + event_json)
+        Report.Report.not_found.add(str(traceback.extract_stack()))
         print(er.args)
         return
 
@@ -410,7 +415,7 @@ def parse_city_event(parameters, datetime):
             )
         elif event_type == "Restore":
             if isinstance(parameters[event_type], str):
-                return None
+                return False
             game_coin = int(parameters[event_type]["gameCoin"]) if "gameCoin" in list(
                 parameters[event_type]) else None
             quest_id = parameters[event_type]["Quest"] if "Quest" in list(

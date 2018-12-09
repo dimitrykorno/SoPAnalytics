@@ -1,5 +1,5 @@
 from report_api.CommonReports import MAU
-from report_api.Utilities.Utils import time_count
+from report_api.Utilities.Utils import time_count,check_folder,check_arguments
 import os
 
 
@@ -12,7 +12,7 @@ def new_report(os_list=["iOS"],
                countries_list=[]):
     dir = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir)).replace("\\", "/")
     events_list = [("CityEvent", "%InitGameState%")]
-    MAU.new_report( app="sop",
+    return MAU.new_report( app="sop",
                              folder_dest=dir + "/Results/MAU/",
                              events_list=events_list,
                              os_list=os_list,

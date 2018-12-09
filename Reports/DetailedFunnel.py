@@ -6,7 +6,7 @@ from sop_analytics.Data import Parse
 from sop_analytics.Classes.User import User
 from report_api.Report import Report
 from report_api.Utilities.Utils import time_count,check_arguments,try_save_writer,check_folder
-
+import os
 app = "sop"
 
 
@@ -33,6 +33,8 @@ def new_report(game_point="0030",
     errors = check_arguments(locals())
     result_files = []
     folder_dest = "Results/Подробный анализ уровня/"
+    if hasattr(new_report,'user'):
+        folder_dest+=str(new_report.user)+"/"
     check_folder(folder_dest)
 
     if errors:
@@ -115,7 +117,7 @@ def new_report(game_point="0030",
         writer = pd.ExcelWriter(filename)
         df.to_excel(excel_writer=writer)
         try_save_writer(writer,filename)
-        result_files.append(filename)
+        result_files.append(os.path.abspath(filename))
     return errors,result_files
 
 

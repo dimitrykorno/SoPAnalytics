@@ -28,8 +28,10 @@ def new_report(os_list=["iOS"],
     errors = check_arguments(locals())
     result_files = []
     folder_dest = "Results/Отчёт по качеству уровней/"
+    if hasattr(new_report,'user'):
+        folder_dest+=str(new_report.user)+"/"
     check_folder(folder_dest)
-
+    print(errors)
     if errors:
         return errors, result_files
 
@@ -280,7 +282,6 @@ def new_report(os_list=["iOS"],
 
         file_name = folder_dest + "Levels " + str(start) + "-" + str(
             start + quantity - 1) + " " + str(min_version) + " " + os_str + ".xlsx"
-        result_files.append(os.path.abspath(file_name))
         writer = pd.ExcelWriter(file_name)
 
         for test in report_data:
@@ -349,6 +350,6 @@ def new_report(os_list=["iOS"],
             # print(df.to_string())
 
             df.to_excel(excel_writer=writer, sheet_name=test)
-            try_save_writer(writer)
-
+        try_save_writer(writer,file_name)
+        result_files.append(os.path.abspath(file_name))
     return errors, result_files

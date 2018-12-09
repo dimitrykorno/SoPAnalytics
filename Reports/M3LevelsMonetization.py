@@ -5,13 +5,13 @@ from sop_analytics.Data import Parse
 from sop_analytics.Classes.User import User
 from report_api.Report import Report
 from report_api.Utilities.Utils import time_count,check_folder,check_arguments,try_save_writer
-
+import os
 app = "sop"
 
 
 # noinspection PyDefaultArgument,PyDefaultArgument
 @time_count
-def levels_monetization(start=1,
+def new_report(start=1,
                         quantity=200,
                         os_list=["iOS"],
                         period_start=None,
@@ -22,6 +22,8 @@ def levels_monetization(start=1,
     errors = check_arguments(locals())
     result_files = []
     folder_dest = "Results/Монетизация уровней/"
+    if hasattr(new_report,'user'):
+        folder_dest+=str(new_report.user)+"/"
     check_folder(folder_dest)
 
     if errors:
@@ -96,4 +98,5 @@ def levels_monetization(start=1,
                                                 "5300 quant", "Money",
                                                 "11000 quant", "Money"])
         try_save_writer(writer,filename)
-    return errors,filename
+        result_files.append(os.path.abspath(filename))
+    return errors,result_files

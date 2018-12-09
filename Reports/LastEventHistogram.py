@@ -9,7 +9,7 @@ def new_report(os_list=["iOS"],
                app_version='7.0',
                users_limit=10000):
     dir = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir)).replace("\\", "/")
-    LastEventHistogram.new_report(
+    return LastEventHistogram.new_report(
         parser=Parse,
         app="sop",
         folder_dest=dir + "/Results/Гистограма последнего действия/",

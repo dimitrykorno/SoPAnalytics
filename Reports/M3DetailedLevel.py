@@ -9,14 +9,14 @@ from sop_analytics.Utilities.Colors import Colors
 from sop_analytics.Utilities.Targets import Targets
 from sop_analytics.Utilities.Super import Supers
 from sop_analytics.Utilities.Quests import get_levels, get_next_locquest
-
+import os
 app = "sop"
 
 
 # noinspection PyDefaultArgument,PyDefaultArgument
 @time_count
 def new_report(os_list=["iOS"],
-               period_start=None,
+               period_start="2018-09-01",
                period_end=None,
                min_version=None,
                max_version=None,
@@ -26,6 +26,8 @@ def new_report(os_list=["iOS"],
     errors = check_arguments(locals())
     result_files = []
     folder_dest = "Results/Анализ прохождения уровня/"
+    if hasattr(new_report,'user'):
+        folder_dest+=str(new_report.user)+"/"
     check_folder(folder_dest)
 
     if errors:
@@ -202,32 +204,32 @@ def new_report(os_list=["iOS"],
         writer = pd.ExcelWriter(filename)
         df_detailed_play.to_excel(excel_writer=writer)
         try_save_writer(writer,filename)
-        result_files.append(filename)
+        result_files.append(os.path.abspath(filename))
 
         for fails_count in fails_data:
             df_fails_funnel.loc[fails_count, "Users"] = fails_data[fails_count]["Users"]
             df_fails_funnel.loc[fails_count, "Completed"] = str(fails_data[fails_count]["Completed"]) + " (" + str(
-                round(fails_data[fails_count]["Completed"] * 100 / fails_data[fails_count]["Users"])) + "%)"
+                round(fails_data[fails_count]["Completed"] * 100 / max(1,fails_data[fails_count]["Users"]))) + "%)"
             df_fails_funnel.loc[fails_count, left_par] = str(fails_data[fails_count][left_par]) + " (-" + str(
-                round(fails_data[fails_count][left_par] * 100 / fails_data[fails_count]["Users"])) + "%)"
+                round(fails_data[fails_count][left_par] * 100 / max(1,fails_data[fails_count]["Users"]))) + "%)"
             df_fails_funnel.loc[fails_count, "0 Lives"] = str(fails_data[fails_count]["0 Lives"]) + " (" + str(
-                round(fails_data[fails_count]["0 Lives"] * 100 / fails_data[fails_count][left_par])) + "%)"
+                round(fails_data[fails_count]["0 Lives"] * 100 / max(1,fails_data[fails_count][left_par]))) + "%)"
             df_fails_funnel.loc[fails_count, "Played next quest"] = str(
                 fails_data[fails_count]["Played next quest"]) + " (" + str(
-                round(fails_data[fails_count]["Played next quest"] * 100 / fails_data[fails_count]["Completed"])) + "%)"
+                round(fails_data[fails_count]["Played next quest"] * 100 / max(1,fails_data[fails_count]["Completed"]))) + "%)"
         print(df_fails_funnel.to_string())
         filename=folder_dest+"Воронка фейлов " + str(level_num) + " " + os_str + ".xlsx"
         writer = pd.ExcelWriter(filename)
         df_fails_funnel.to_excel(excel_writer=writer)
         try_save_writer(writer,filename)
-        result_files.append(filename)
+        result_files.append(os.path.abspath(filename))
 
     return errors,result_files
 
 
 def add_elements(df, index, event):
     for element in event.elements_count.colors_count:
-        element_obj=Colors.get_super(element)
+        element_obj=Colors.get_color(element)
         if element_obj:
             element_name = element if not element.startswith("Super_") else element[7:]
             df.loc[index,element_name] = event.elements_count.colors_count[element]
@@ -237,7 +239,7 @@ def add_elements(df, index, event):
             element_name = element if not element.startswith("Super_") else element[7:]
             df.loc[index, element_name] = event.elements_count.super_count[element]
     for element in event.elements_count.targets_count:
-        element_obj = Targets.get_super(element)
+        element_obj = Targets.get_target(element)
         if element_obj:
             element_name = element if not element.startswith("Super_") else element[7:]
             df.loc[index, element_name] = event.elements_count.targets_count[element]

@@ -4,7 +4,7 @@ from sop_analytics.Classes.User import User
 from report_api.Report import Report
 from datetime import date
 from report_api.Utilities.Utils import time_count,check_folder,check_arguments
-
+import os
 app = "sop"
 
 
@@ -15,7 +15,7 @@ def new_report(short_info=True,
                user_status=True,
                detailed_events=list(),
                os_list=["iOS"],
-               period_start=None,
+               period_start="2018-11-01",
                period_end=None,
                min_version=None,
                max_version=None,
@@ -23,6 +23,8 @@ def new_report(short_info=True,
     errors = check_arguments(locals())
     result_files = []
     folder_dest = "Results/Печать сессий/"
+    if hasattr(new_report,'user'):
+        folder_dest+=str(new_report.user)+"/"
     check_folder(folder_dest)
 
     if errors:
@@ -58,7 +60,8 @@ def new_report(short_info=True,
             filename=[folder_dest+os_str+" UserSessions Вернувшиеся после первой сессии.txt",folder_dest+os_str+" UserSessions Не вернувшиеся после первой сессии.txt"]
             output_file_returned = open(filename[0], "w")
             output_file_not_returned = open(filename[1], "w")
-        result_files+=filename
+        for f in filename:
+            result_files.append(os.path.abspath(f))
 
         # ПАРАМЕТРЫ
         returned_user = False
