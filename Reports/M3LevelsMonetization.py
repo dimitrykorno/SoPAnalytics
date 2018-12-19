@@ -74,7 +74,7 @@ def new_report(start=1,
                 countries[country][level][quant] += 1
                 countries[country][level][money] += price
 
-        filename=folder_dest+"Sales " + str(start) + "-" + str(start + quantity - 1) + " " + os_str + ".xlsx"
+        filename=folder_dest+"Sales per lvl" + str(start) + "-" + str(start + quantity - 1) + " " + os_str + ".xlsx"
         writer = pd.ExcelWriter(filename)
         for country in countries:
             df = pd.DataFrame(index=levels,

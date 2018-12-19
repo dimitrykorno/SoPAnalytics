@@ -57,7 +57,7 @@ def new_report(short_info=True,
             filename=[folder_dest+os_str+" UserSessions.txt"]
             output_file = open(filename[0], "w")
         else:
-            filename=[folder_dest+os_str+" UserSessions Вернувшиеся после первой сессии.txt",folder_dest+os_str+" UserSessions Не вернувшиеся после первой сессии.txt"]
+            filename=[folder_dest+os_str+" UserSessions Back after first session.txt",folder_dest+os_str+" UserSessions Left after first session.txt"]
             output_file_returned = open(filename[0], "w")
             output_file_not_returned = open(filename[1], "w")
         for f in filename:

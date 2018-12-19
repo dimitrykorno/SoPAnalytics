@@ -45,6 +45,8 @@ def new_report(os_list=["iOS"],
         return errors, result_files
     if days_left is None:
         days_left=365
+    else:
+        days_left=int(days_left)
 
     for os_str in os_list:
         # БАЗА ДАННЫХ
@@ -254,9 +256,9 @@ def new_report(os_list=["iOS"],
         df["Last event loss"].replace(0, "", inplace=True)
         df["Coins"].replace(0, "", inplace=True)
 
-        print("Loss after", days_left, "days.")
-        print("Users opened game:", opened_game)
-        print(df.to_string())
+        # print("Loss after", days_left, "days.")
+        # print("Users opened game:", opened_game)
+        # print(df.to_string())
 
         for level in df.index.values:
             if "Start" in level:

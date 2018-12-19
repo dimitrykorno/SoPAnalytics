@@ -242,10 +242,10 @@ def new_report(os_list=["iOS"],
 
         # Перенос данных в таблицу
         for quest in quests:
-            if quest == "loc02q10":
-                print(quest, quests[quest]["Средняя пыль на руках (плат)"])
-            if quest == "loc02q11":
-                print(quest, quests[quest]["Средняя пыль на руках (плат)"])
+            # if quest == "loc02q10":
+            #     print(quest, quests[quest]["Средняя пыль на руках (плат)"])
+            # if quest == "loc02q11":
+            #     print(quest, quests[quest]["Средняя пыль на руках (плат)"])
             quests[quest]["Средняя трата пыли"] = array_average(quests[quest]["Средняя трата пыли"],
                                                                 name=quest + " " + "Средняя трата пыли", multiplier=5)
             quests[quest]["Средняя пыль на руках (плат)"] = array_average(
@@ -276,7 +276,7 @@ def new_report(os_list=["iOS"],
         # Вывод
         df.fillna(0, inplace=True)
         pd.options.display.max_colwidth = 150
-        print(df.to_string())
+        #print(df.to_string())
         filename=folder_dest+"DustDynamics " + str(min_version) + " " + os_str + ".xlsx"
         writer = pd.ExcelWriter(filename)
         df.to_excel(excel_writer=writer)

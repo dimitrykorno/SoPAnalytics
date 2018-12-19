@@ -5,7 +5,6 @@ except ImportError:
     print("No ujson found. Using json.")
     import json
 
-import re
 import traceback
 from report_api import Report
 
@@ -19,8 +18,6 @@ from sop_analytics.Utilities.Shop import get_price
 
 
 def parse_event(event_name, event_json, datetime):
-    # заменяем двойные двойные кавычки на одинакрные двойные кавычки (да, тупо...)
-    #event_json = re.sub(r'""', r'"', event_json)
 
     try:
         parameters = json.loads(event_json)

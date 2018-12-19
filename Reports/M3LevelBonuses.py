@@ -28,10 +28,15 @@ def new_report(os_list=["iOS"],
 
     if errors:
         return errors, result_files
+
     if start is None:
         start=1
+    else:
+        start=int(start)
     if quantity is None:
         quantity=200
+    else:
+        quantity=int(quantity)
     for os_str in os_list:
         # БАЗА ДАННЫХ
         Report.set_app_data(parser=Parse, user_class=User, event_class=Event,
@@ -128,7 +133,7 @@ def new_report(os_list=["iOS"],
         for level in levels:
             df.at[level,"Spent"]=df.at[level,"Hammer"]*hammer_price+df.at[level,"First"]*first_bonus_price+df.at[level,"Second"]*second_bonus_price+df.at[level,"Third"]*third_bonus_price+df.at[level,"Buy steps"]*steps_price
         # Вывод
-        print(df.to_string())
+        #print(df.to_string())
         filename=folder_dest+"Level spend coins " + str(start) + "-" + str(start + quantity - 1) + ".xlsx"
         writer = pd.ExcelWriter(filename)
         df.to_excel(excel_writer=writer)

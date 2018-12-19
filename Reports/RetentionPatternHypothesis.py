@@ -35,7 +35,8 @@ def new_report(patt="ВНИМАНИЕ! ЗАДАЙТЕ ПАТТЕРНЫ ВРУЧ�
     :param days_since_install: рассчитное кол-во дней после установки
     :return:
     """
-
+    if days_since_install:
+        days_since_install=int(days_since_install)
     # БАЗА ДАННЫХ
 
     for os_str in os_list:
@@ -231,8 +232,8 @@ def new_report(patt="ВНИМАНИЕ! ЗАДАЙТЕ ПАТТЕРНЫ ВРУЧ�
             user_session_events.append(Report.current_event)
         flush_user_data()
 
-        print("Инсталлов:", Report.total_users)
-        print("Не прошли по паттернам:", len(Pattern.users_not_covered_with_pattern))
+        #print("Инсталлов:", Report.total_users)
+        #print("Не прошли по паттернам:", len(Pattern.users_not_covered_with_pattern))
 
         df = pd.DataFrame(index=[],
                           columns=parameters)
@@ -254,7 +255,7 @@ def new_report(patt="ВНИМАНИЕ! ЗАДАЙТЕ ПАТТЕРНЫ ВРУЧ�
         df.fillna(0, inplace=True)
         df.sort_values(by=["Retention Period", "Pattern"], ascending=True, inplace=True)
         # Вывод
-        print(df.to_string(index=False))
+        #print(df.to_string(index=False))
         string = "ClassicRetention" if classic_retention else "RollingRetention"
         writer = pd.ExcelWriter(
             "Results/Паттерны/" + Pattern.filename + " " + string + " " + os_str + ".xlsx")

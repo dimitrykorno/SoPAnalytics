@@ -112,7 +112,7 @@ def new_report(game_point="0030",
         df["Users %"] = df["Users"] * 100 / Report.total_users
         # Вывод
         df.fillna("", inplace=True)
-        print(df.to_string())
+        #print(df.to_string())
         filename=folder_dest+"DetailedFunnel " + str(min_version) + " " + os_str + "+.xlsx"
         writer = pd.ExcelWriter(filename)
         df.to_excel(excel_writer=writer)

@@ -35,6 +35,8 @@ def new_report(os_list=["iOS"],
 
     if days_left is None:
         days_left=365
+    else:
+        days_left=int(days_left)
     for os_str in os_list:
         # БАЗА ДАННЫХ
         Report.set_app_data(parser=Parse, user_class=User, event_class=Event,
@@ -199,7 +201,7 @@ def new_report(os_list=["iOS"],
             flush_user_info()
         # Вывод
         df_detailed_play.fillna("", inplace=True)
-        print(df_detailed_play.to_string())
+        #print(df_detailed_play.to_string())
         filename=folder_dest+ "Detailed level " + str(level_num) + " " + os_str + ".xlsx"
         writer = pd.ExcelWriter(filename)
         df_detailed_play.to_excel(excel_writer=writer)
@@ -217,8 +219,8 @@ def new_report(os_list=["iOS"],
             df_fails_funnel.loc[fails_count, "Played next quest"] = str(
                 fails_data[fails_count]["Played next quest"]) + " (" + str(
                 round(fails_data[fails_count]["Played next quest"] * 100 / max(1,fails_data[fails_count]["Completed"]))) + "%)"
-        print(df_fails_funnel.to_string())
-        filename=folder_dest+"Воронка фейлов " + str(level_num) + " " + os_str + ".xlsx"
+        #print(df_fails_funnel.to_string())
+        filename=folder_dest+"Fail funnel " + str(level_num) + " " + os_str + ".xlsx"
         writer = pd.ExcelWriter(filename)
         df_fails_funnel.to_excel(excel_writer=writer)
         try_save_writer(writer,filename)

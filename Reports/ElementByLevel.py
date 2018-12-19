@@ -46,12 +46,16 @@ def new_report(os_list=["iOS"],
             elements[i] = "Color6_" + elements[i]
             continue
         else:
-            print("Элемента нет в базе:", elements[i], ". Это может вызвать ошибки.")
+            #print("Элемента нет в базе:", elements[i], ". Это может вызвать ошибки.")
             errors += "Элемента нет в базе: " + str(elements[i]) + ". Это может вызвать ошибки.\n"
     if not levels_start:
         levels_start=1
+    else:
+        levels_start=int(levels_start)
     if not levels_quant:
         levels_quant=200
+    else:
+        levels_quant=int(levels_quant)
     # БАЗА ДАННЫХ
     for os_str in os_list:
         # БАЗА ДАННЫХ

@@ -15,7 +15,7 @@ app = "sop"
 
 # noinspection PyDefaultArgument,PyDefaultArgument
 @time_count
-def new_report(os_list=["iOS"],
+def new_report(os_list=["iOS","Android"],
                period_start="2018-11-01",
                period_end=None,
                min_version=None,
@@ -24,14 +24,17 @@ def new_report(os_list=["iOS"],
                start=1,
                quantity=100,
                days_left=None,
-               days_max=None):
+               days_max=None,
+               china=False):
+    if china:
+        app="sopchina"
     errors = check_arguments(locals())
     result_files = []
     folder_dest = "Results/Отчёт по качеству уровней/"
     if hasattr(new_report,'user'):
         folder_dest+=str(new_report.user)+"/"
     check_folder(folder_dest)
-    print(errors)
+    #print(errors)
     if errors:
         return errors, result_files
 
@@ -47,6 +50,16 @@ def new_report(os_list=["iOS"],
             days_left = 3
         else:
             days_left = 999
+    else:
+        days_left=int(days_left)
+    if start is None:
+        start=1
+    else:
+        start=int(start)
+    if quantity is None:
+        quantity=200
+    else:
+        quantity=int(quantity)
     if isinstance(period_start, str):
         period_start = datetime.strptime(period_start, "%Y-%m-%d").date()
     if isinstance(period_end, str):
