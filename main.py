@@ -32,7 +32,7 @@ if __name__ == '__main__':
     Menu.menu_handsmode(reports)
 
 
-
+#функции для бота
 def get_menu():
     return Menu.get_menu(reports)
 
