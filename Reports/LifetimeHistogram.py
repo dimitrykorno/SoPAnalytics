@@ -6,7 +6,7 @@ import os
 @time_count
 def new_report(os_list=["iOS"],
                max_days=100,
-               app_versions=['5.1', '5.3'],
+               app_versions=['7.1', '7.3'],
                users_limit=10000):
     dir = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir)).replace("\\", "/")
     return LifetimeHistogram.new_report(app="sop",
