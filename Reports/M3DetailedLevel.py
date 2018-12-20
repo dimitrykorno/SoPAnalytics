@@ -15,7 +15,7 @@ app = "sop"
 
 # noinspection PyDefaultArgument,PyDefaultArgument
 @time_count
-def new_report(os_list=["iOS"],
+def new_report(os_list=["iOS","Android"],
                period_start="2018-09-01",
                period_end=None,
                min_version=None,

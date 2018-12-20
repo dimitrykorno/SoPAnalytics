@@ -13,7 +13,7 @@ app = "sop"
 
 
 @time_count
-def new_report(os_list=["iOS"],
+def new_report(os_list=["iOS","Android"],
                levels_start=1,
                levels_quant=200,
                elements=["StarBonus"],

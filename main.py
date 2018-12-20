@@ -4,8 +4,7 @@ from report_api.Menu import Menu
 from sop_analytics.Reports import M3LevelsFunnel, M3DetailedLevel, GlobalFunnel, UsersSessions, M3LevelBonuses, \
     LastEventHistogram, \
     DetailedFunnel, LifetimeHistogram, ProgressHistogram, DustDynamics, CumulativeROI, RetentionPatternHypothesis, \
-    InAppSales, ElementByLevel, DAU, MAU
-import timeit, re
+    InAppSales, ElementByLevel, DAU, MAU,DustPurchases
 
 mode = "console"
 reports = [
@@ -19,11 +18,12 @@ reports = [
     ("8. Гистограма лайфтайма", LifetimeHistogram.new_report),
     ("9. Гистограма прогресса", ProgressHistogram.new_report),
     ("10.Динамика пыли", DustDynamics.new_report),
-    ("11.Накопительный ROI", CumulativeROI.new_report),
-    ("12.Отчёт по продажам", InAppSales.new_report),
-    ("13.Анализ взорванных элементов на уровне", ElementByLevel.new_report),
-    ("14.DAU", DAU.new_report),
-    ("15.MAU", MAU.new_report)
+    ("11.Покупка пыли", DustPurchases.new_report),
+    ("12.Накопительный ROI", CumulativeROI.new_report),
+    ("13.Отчёт по продажам", InAppSales.new_report),
+    ("14.Анализ взорванных элементов на уровне", ElementByLevel.new_report),
+    ("15.DAU", DAU.new_report),
+    ("16.MAU", MAU.new_report),
 ]
 
 if __name__ == '__main__':

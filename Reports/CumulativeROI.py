@@ -6,7 +6,7 @@ import os
 
 
 @time_count
-def new_report(os_list=["iOS"],
+def new_report(os_list=["iOS","Android"],
                days_since_install=250,
                period_start="2018-06-14",
                period_end=None,

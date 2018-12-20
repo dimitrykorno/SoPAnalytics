@@ -13,7 +13,7 @@ app = "sop"
 @time_count
 def new_report(start=1,
                         quantity=200,
-                        os_list=["iOS"],
+                        os_list=["iOS","Android"],
                         period_start=None,
                         period_end=None,
                         min_version=None,

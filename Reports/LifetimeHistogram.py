@@ -4,7 +4,7 @@ import os
 
 
 @time_count
-def new_report(os_list=["iOS"],
+def new_report(os_list=["iOS","Android"],
                max_days=100,
                app_versions=['7.1', '7.3'],
                users_limit=10000):

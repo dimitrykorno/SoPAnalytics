@@ -10,7 +10,7 @@ app = "sop"
 
 # noinspection PyDefaultArgument,PyDefaultArgument,PyDefaultArgument,PyDefaultArgument
 @time_count
-def new_report(os_list=["iOS"],
+def new_report(os_list=["iOS","Android"],
                max_level=60,
                days=[0, 1, 2, 3, 4],
                app_versions=["7.5"],

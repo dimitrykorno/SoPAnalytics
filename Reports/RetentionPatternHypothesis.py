@@ -12,7 +12,7 @@ app = "sop"
 # noinspection PyDefaultArgument,PyDefaultArgument
 @time_count
 def new_report(patt="ВНИМАНИЕ! ЗАДАЙТЕ ПАТТЕРНЫ ВРУЧНУЮ.",
-               os_list=["iOS"],
+               os_list=["iOS","Android"],
                period_start=None,
                period_end=None,
                min_version=None,

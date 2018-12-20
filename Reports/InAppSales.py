@@ -6,7 +6,7 @@ from sop_analytics.Classes.User import User
 import os
 
 @time_count
-def new_report(os_list=["iOS"],
+def new_report(os_list=["iOS","Android"],
                after_release_months_graphs=False,
                period_start="2018-08-19",
                period_end=None,

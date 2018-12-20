@@ -5,7 +5,7 @@ import os
 
 
 @time_count
-def new_report(os_list=["iOS"],
+def new_report(os_list=["iOS","Android"],
                app_version='7.0',
                users_limit=10000):
     dir = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir)).replace("\\", "/")
