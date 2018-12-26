@@ -32,7 +32,7 @@ def new_report(start=1,
     levels = get_level_names(start, quantity)
     for os_str in os_list:
         # БАЗА ДАННЫХ
-        Report.set_app_data(parser=Parse, user_class=User, event_class=Event,
+        Report.set_app_data(parser=Parse, user_class=User,
                             os=os_str, app=app, user_status_check=True)
 
         Report.set_installs_data(additional_parameters=[],

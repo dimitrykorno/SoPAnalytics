@@ -13,10 +13,11 @@ app = "sop"
 def new_report(short_info=True,
                first_session=False,
                user_status=True,
-               detailed_events=list(),
-               os_list=["iOS","Android"],
-               period_start="2018-11-01",
-               period_end=None,
+               detailed_events=[],
+               sessions_with=['CityEventsBuyPremiumCoin'],
+               os_list=["iOS"],
+               period_start="2018-09-01",
+               period_end="2018-12-20",
                min_version=None,
                max_version=None,
                countries_list=[]):
@@ -33,18 +34,18 @@ def new_report(short_info=True,
     # БАЗА ДАННЫХ
     for os_str in os_list:
         # БАЗА ДАННЫХ
-        Report.set_app_data(parser=Parse, user_class=User, event_class=Event,
+        Report.set_app_data(parser=Parse, user_class=User,
                             os=os_str, app=app, user_status_check=True)
 
         Report.set_installs_data(additional_parameters=[],
-                                 period_start=period_start,
-                                 period_end=period_end,
+                                 period_start=None,
+                                 period_end=None,
                                  min_version=min_version,
                                  max_version=max_version,
                                  countries_list=countries_list)
         Report.set_events_data(additional_parameters=[],
                                period_start=period_start,
-                               period_end=None,
+                               period_end=period_end,
                                min_version=None,
                                max_version=None,
                                events_list=[])
@@ -66,37 +67,49 @@ def new_report(short_info=True,
         # ПАРАМЕТРЫ
         returned_user = False
         output_string = ""
+        session_string=""
         events_string = ""
         first_session_status = ""
+        skip_session=False
 
         while Report.get_next_event():
 
+
             # НОВЫЙ ПОЛЬЗОВАТЕЛЬ
             if Report.is_new_user():
-
+                #print("new",skip_session)
                 # Создаем текст сессий на вывод
-                output_string += "\n\nNew user: " + str(Report.previous_user.user_id) + "\n"
-                output_string += events_string
-                if user_status:
-                    if first_session:
-                        output_string += first_session_status
-                    else:
-                        output_string += Report.previous_user.get_status()
+                if not skip_session:
+                    events_string += "---\n"
+                    events_string += session_string
+                    #print("add session end", session_string[:10])
+                if "2" in events_string or "c" in events_string.lower() or "m" in events_string.lower():
+                    output_string += "\n\nNew user: " + str(Report.previous_user.user_id) + "\n"
+                    output_string += events_string
+                    if user_status:
+                        if first_session:
+                            output_string += first_session_status
+                        else:
+                            output_string += Report.previous_user.get_status()
 
-                # Вывод в файлы
-                if Report.previous_user.install_date >= date(2018, 6, 25):
-                    if not first_session:
-                        output_file.write(output_string)
-                    elif first_session and returned_user:
-                        output_file_returned.write(output_string)
-                    elif first_session and not returned_user:
-                        output_file_not_returned.write(output_string)
+                    # Вывод в файлы
+                    if Report.previous_user.install_date >= date(2018, 6, 25):
+                        if not first_session:
+                            output_file.write(output_string)
+                        elif first_session and returned_user:
+                            output_file_returned.write(output_string)
+                        elif first_session and not returned_user:
+                            output_file_not_returned.write(output_string)
 
                 # Обнуление параметров
                 returned_user = False
                 output_string = ""
+                session_string = ""
                 events_string = ""
                 first_session_status = ""
+                skip_session=False
+                if sessions_with:
+                    skip_session = True
 
             # ПЕРВЫЕ СЕССИИ
             if first_session:
@@ -112,12 +125,29 @@ def new_report(short_info=True,
             # Добавление текста события
             if (first_session and Report.current_user.first_session) or not first_session:
                 if Report.current_event.__class__ is CityEventsInitGameState:
-                    events_string += "---\n"
+                    if not skip_session:
+                        events_string += "---\n"
+                        events_string+=session_string
+                        #print("add session",skip_session,session_string[:10])
+                    session_string = ""
+                    if sessions_with:
+                        skip_session=True
+
+                if sessions_with:
+                    for e in sessions_with:
+                        if e in Report.current_event.to_short_string() :
+                            if hasattr(Report.current_event,"status") and Report.current_event.status.lower() !="success":
+                                continue
+                            #print(e,Report.current_event.to_short_string(),e in Report.current_event.to_short_string(),"Success" in Report.current_event.to_short_string())
+                            skip_session=False
+                            break
                 if short_info and (
                             not detailed_events or detailed_events and Report.current_event.__class__.__name__
                         not in detailed_events):
-                    events_string += str(
+                    session_string += str(
                         Report.current_event.datetime) + " " + Report.current_event.to_short_string() + "\n"
+                    #print("add",skip_session,session_string)
                 else:
-                    events_string += str(Report.current_event.datetime) + " " + Report.current_event.to_string() + "\n"
+                    session_string += str(Report.current_event.datetime) + " " + Report.current_event.to_string() + "\n"
+
     return errors, result_files

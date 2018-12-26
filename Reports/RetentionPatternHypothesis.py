@@ -41,7 +41,7 @@ def new_report(patt="ВНИМАНИЕ! ЗАДАЙТЕ ПАТТЕРНЫ ВРУЧ�
 
     for os_str in os_list:
         # БАЗА ДАННЫХ
-        Report.set_app_data(parser=Parse, user_class=User, event_class=Event,
+        Report.set_app_data(parser=Parse, user_class=User,
                             os=os_str, app=app, user_status_check=False)
 
         Report.set_installs_data(additional_parameters=[],

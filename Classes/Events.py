@@ -406,20 +406,26 @@ class CityEventsBuyNoDustWindow(Event):
         self.quest = quest_id,
         self.status = status
 
+    def to_string(self):
+        info = super().to_string()
+        info+=  ", Coins: " + str(
+            self.game_coin) + " premium:"+str(self.premium_coin)
+        return info
 
 class CityEventsMillDust(Event):
-    __slots__ = 'quest', 'garden', 'game_coin'
+    __slots__ = 'quest', 'garden', 'game_coin','premium_coin'
 
-    def __init__(self, garden_id, datetime, quest_id, game_coin):
+    def __init__(self, garden_id, datetime, quest_id, game_coin,premium_coin):
         super().__init__(datetime)
         self.quest = quest_id
         self.garden = garden_id
         self.game_coin = game_coin
+        self.premium_coin=premium_coin
 
     def to_string(self):
         info = super().to_string()
         info += "Get dust: Quest: " + str(self.quest) + ", From: " + str(self.garden) + ", Coins: " + str(
-            self.game_coin)
+            self.game_coin) + " premium:"+str(self.premium_coin)
         return info
 
 

@@ -43,8 +43,7 @@ def new_report(game_point="0030",
     # БАЗА ДАННЫХ
     for os_str in os_list:
         # БАЗА ДАННЫХ
-        Report.set_app_data(parser=Parse, user_class=User, event_class=Event,
-                            os=os_str, app=app, user_status_check=True)
+        Report.set_app_data(parser=Parse, user_class=User, os=os_str, app=app, user_status_check=True)
 
         Report.set_installs_data(additional_parameters=[],
                                  period_start=period_start,

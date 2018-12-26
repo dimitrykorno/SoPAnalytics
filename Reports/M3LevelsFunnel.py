@@ -10,7 +10,7 @@ from datetime import datetime
 from report_api.Utilities.Utils import time_count, outliers_iqr, try_save_writer, check_folder, check_arguments
 import os
 
-app = "sop"
+
 
 
 # noinspection PyDefaultArgument,PyDefaultArgument
@@ -26,6 +26,7 @@ def new_report(os_list=["iOS","Android"],
                days_left=None,
                days_max=None,
                china=False):
+    app = "sop"
     if china:
         app="sopchina"
     errors = check_arguments(locals())
@@ -72,7 +73,7 @@ def new_report(os_list=["iOS","Android"],
 
     for os_str in os_list:
         # БАЗА ДАННЫХ
-        Report.set_app_data(parser=Parse, user_class=User, event_class=Event,
+        Report.set_app_data(parser=Parse, user_class=User,
                             os=os_str, app=app, user_status_check=True)
 
         Report.set_installs_data(additional_parameters=[],
@@ -255,32 +256,34 @@ def new_report(os_list=["iOS","Android"],
                     Match3BuyPremiumCoin, Match3CompleteTargets, Match3FinishGame, Match3StartGame, Match3FailGame):
                 current_level = Report.current_event.level_num
 
+
+            # print(current_level,levels,Report.current_event.__class__.__name__)
+            # print(Report.current_event.to_string())
+            # Нвоый пользователь
+            if (Report.is_new_user() and not Report.previous_user.is_skipped()) or (
+                        Report.get_time_since_install() > days_max):
+                flush_user_data()
+                # сброс личных параметров
+                user_test_groups = set()
+                user_levels_data = {}
+                for level in levels:
+                    user_levels_data[level] = dict.fromkeys(parameters, 0)
+                started_levels = set()
+                finished_levels = set()
+                first_purchase = True
+                clean_start = True
+
+                if days_max and not Report.is_new_user() and Report.get_time_since_install(
+                        user="current") > days_max:
+                    Report.skip_current_user()
+                    continue
+
+                #если странный пользователь, у которого первый уровень не 0001, то не рассматрвиаем
+                if current_level != "0001":
+                    Report.skip_current_user()
+                    continue
             # Если уровень из списка рассматрвиаемых
             if current_level in levels:
-                # print(current_level,levels,Report.current_event.__class__.__name__)
-                # print(Report.current_event.to_string())
-                # Нвоый пользователь
-                if (Report.is_new_user() and not Report.previous_user.is_skipped()) or (
-                            Report.get_time_since_install() > days_max):
-                    flush_user_data()
-                    # сброс личных параметров
-                    user_test_groups = set()
-                    user_levels_data = {}
-                    for level in levels:
-                        user_levels_data[level] = dict.fromkeys(parameters, 0)
-                    started_levels = set()
-                    finished_levels = set()
-                    first_purchase = True
-                    clean_start = True
-
-                    if days_max and not Report.is_new_user() and Report.get_time_since_install(
-                            user="current") > days_max:
-                        Report.skip_current_user()
-                        continue
-                    if current_level != "0001":
-                        Report.skip_current_user()
-                        continue
-
                 start_finish()
                 clean_start = clean_start_finish()
                 difficulty()

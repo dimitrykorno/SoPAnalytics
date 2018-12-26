@@ -51,7 +51,7 @@ def parse_event(event_name, event_json, datetime):
 
         Report.Report.not_found.add(str(er.args) + " Error: " + event_name + " Json: " + event_json)
         Report.Report.not_found.add(str(traceback.extract_stack()))
-        print(er.args)
+        #print(er.args)
         return
 
     return new_event
@@ -400,7 +400,7 @@ def parse_city_event(parameters, datetime):
             quest_id = list(parameters[event_type])[0]
             # косяки
             if quest_id in ("Take", "Сomplete"):
-                return
+                return False
             if parameters[event_type][quest_id] == "Сomplete":
                 action = "Complete"
             else:
@@ -426,20 +426,29 @@ def parse_city_event(parameters, datetime):
                 quest_id=quest_id
             )
         elif event_type == "Remove":
-            # if "premiumCoin" not in parameters[event_type]:
-            #    return None
+            premium_coin = 0
+            if "PremiumCoin" in parameters[event_type]:
+               premium_coin = int(parameters[event_type]["PremiumCoin"])
 
             return CityEventsRemove(
                 object_name=parameters[event_type],
                 datetime=datetime,
-                premium_coin=int(parameters[event_type]["PremiumCoin"]),
+                premium_coin=premium_coin,
                 quest_id=parameters[event_type]["Quest"]
             )
         elif event_type == "MillDust":
+            game_coin=0
+            premium_coin=0
+            if "gameCoin" in parameters[event_type]:
+                game_coin =int(parameters[event_type]["gameCoin"])
+            if "premiumCoin" in parameters[event_type]:
+                premium_coin = int(parameters[event_type]["premiumCoin"])
+
             return CityEventsMillDust(
                 garden_id=parameters[event_type]["Garden"],
                 datetime=datetime,
-                game_coin=int(parameters[event_type]["gameCoin"]),
+                game_coin=game_coin,
+                premium_coin=premium_coin,
                 quest_id=parameters[event_type]["Quest"]
             )
         else:
